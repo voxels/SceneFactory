@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "episode_id": "new_project",
+  "artifact_id": "replace_me",
+  "artifact_type": "motion_proof",
+  "path": "",
+  "source_hashes": [],
+  "workflow_hash": null,
+  "model_hashes": [],
+  "time_range_seconds": [0.0, 0.0],
+  "checks": {
+    "identity": "pending",
+    "wardrobe_and_hair": "pending",
+    "anatomy": "pending",
+    "prop_geometry_count_and_ownership": "pending",
+    "blocking_and_screen_direction": "pending",
+    "motion_fidelity": "pending",
+    "mask_and_occlusion": "pending",
+    "environment_camera_and_light": "pending",
+    "visual_only_no_audio": "pending",
+    "editorial_usefulness": "pending"
+  },
+  "decision": "pending",
+  "approved_by": null,
+  "issues": [],
+  "notes": ""
+}

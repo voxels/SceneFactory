@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "episode_id": "new_project",
+  "change_id": "swap-001",
+  "requested_by": "user",
+  "resource_type": "character",
+  "old_resource_id": null,
+  "new_resource_id": "replace_me",
+  "reason": "",
+  "authoritative_sources": [],
+  "fields_that_must_change": [],
+  "fields_that_must_remain_invariant": [],
+  "affected_scene_ids": [],
+  "affected_shot_ids": [],
+  "invalidate_descendants": true,
+  "required_reviews": [
+    "source_provenance",
+    "semantic_contract",
+    "identity_or_geometry",
+    "continuity",
+    "motion_or_mask",
+    "composite"
+  ],
+  "decision": "pending",
+  "approved_by": null,
+  "issues": []
+}

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.scene-factory/schemas/caption.schema.json",
+  "title": "Scene Factory Structured Image Caption",
+  "type": "object",
+  "required": ["asset_id", "source_sha256", "concept_id", "description", "composition", "lighting", "quality", "identity_tags", "attribute_tags", "apparent_life_stage", "visible_traits", "training_caption", "review_state", "split"],
+  "properties": {
+    "asset_id": {"type": "string"},
+    "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "concept_id": {"type": ["string", "null"]},
+    "description": {"type": "string", "minLength": 1},
+    "subjects": {"type": "array", "items": {"type": "object"}},
+    "composition": {
+      "type": "object",
+      "required": ["framing", "view", "camera_angle"],
+      "properties": {
+        "framing": {"type": "string"},
+        "view": {"type": "string"},
+        "camera_angle": {"type": "string"}
+      }
+    },
+    "lighting": {"type": "array", "items": {"type": "string"}},
+    "environment": {"type": "array", "items": {"type": "string"}},
+    "visible_text": {"type": "array", "items": {"type": "string"}},
+    "quality": {
+      "type": "object",
+      "required": ["sharpness", "occlusion", "training_usable", "risks"],
+      "properties": {
+        "sharpness": {"type": "string"},
+        "occlusion": {"type": "string"},
+        "training_usable": {"type": "boolean"},
+        "risks": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "identity_tags": {"type": "array", "items": {"type": "string"}},
+    "attribute_tags": {"type": "array", "items": {"type": "string"}},
+    "apparent_life_stage": {"enum": ["child", "adolescent", "young_adult", "adult", "later_adult", "uncertain"]},
+    "visible_traits": {
+      "type": "object",
+      "required": ["face_visibility", "hair_color", "hair_texture", "hair_style", "expression", "makeup", "body_visibility", "wardrobe", "pose"],
+      "properties": {
+        "face_visibility": {"type": "string"},
+        "hair_color": {"type": "string"},
+        "hair_texture": {"type": "string"},
+        "hair_style": {"type": "string"},
+        "expression": {"type": "string"},
+        "makeup": {"type": "string"},
+        "body_visibility": {"type": "string"},
+        "wardrobe": {"type": "array", "items": {"type": "string"}},
+        "pose": {"type": "string"}
+      }
+    },
+    "training_caption": {"type": "string", "minLength": 1},
+    "caption_model": {"type": "string"},
+    "review_state": {"enum": ["pending", "approved", "rejected"]},
+    "split": {"enum": ["unassigned", "train", "validation", "reject"]},
+    "review_notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

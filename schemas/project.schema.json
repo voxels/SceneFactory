@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.scene-factory/schemas/project.schema.json",
+  "title": "Scene Factory Project",
+  "type": "object",
+  "required": ["schema_version", "project", "models", "defaults", "characters", "environments", "hierarchy", "concept_registry"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project": {
+      "type": "object",
+      "required": ["id", "title", "format"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$"},
+        "title": {"type": "string", "minLength": 1},
+        "format": {
+          "type": "object",
+          "required": ["width", "height", "fps"],
+          "properties": {
+            "width": {"type": "integer", "minimum": 64},
+            "height": {"type": "integer", "minimum": 64},
+            "fps": {"type": "number", "exclusiveMinimum": 0},
+            "duration_seconds": {"type": "number", "exclusiveMinimum": 0}
+          }
+        }
+      }
+    },
+    "models": {
+      "type": "object",
+      "required": ["prompt_planner", "image_generator", "video_generator"],
+      "additionalProperties": {"type": ["string", "object"]}
+    },
+    "path_defaults": {
+      "type": "object",
+      "additionalProperties": {"type": "string"}
+    },
+    "defaults": {
+      "type": "object",
+      "required": ["formations_per_shot", "video_frame_rule"],
+      "properties": {
+        "formations_per_shot": {"type": "integer", "minimum": 1},
+        "video_frame_rule": {"enum": ["mod8_plus1", "none"]},
+        "identity_review_required": {"type": "boolean"},
+        "keyframe_review_required": {"type": "boolean"},
+        "motion_proof_seconds": {"type": "integer", "minimum": 2, "maximum": 5},
+        "extended_clip_seconds": {"type": "integer", "minimum": 3},
+        "approved_candidates_only_for_video": {"type": "boolean"}
+      }
+    },
+    "characters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "identity_tag", "source_folder", "attribute_tags"],
+        "properties": {
+          "id": {"type": "string"},
+          "role": {"enum": ["foreground", "background"]},
+          "identity_tag": {"type": "string"},
+          "concept_id": {"type": ["string", "null"]},
+          "source_folder": {"type": "string"},
+          "attribute_tags": {"type": "array", "items": {"type": "string"}},
+          "visual_rules": {
+            "type": "object",
+            "properties": {
+              "must_have": {"type": "array", "items": {"type": "string"}},
+              "must_not_have": {"type": "array", "items": {"type": "string"}},
+              "anatomy": {"type": "array", "items": {"type": "string"}}
+            }
+          },
+          "training": {"type": "object"},
+          "continuity": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "props": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "geometry"],
+        "properties": {
+          "id": {"type": "string"},
+          "description": {"type": "string"},
+          "geometry": {"type": "array", "items": {"type": "string"}},
+          "continuity": {"type": "array", "items": {"type": "string"}},
+          "forbidden": {"type": "array", "items": {"type": "string"}},
+          "reference_folder": {"type": "string"}
+        }
+      }
+    },
+    "production_constraints": {
+      "type": "object",
+      "properties": {
+        "required": {"type": "array", "items": {"type": "string"}},
+        "issue_codes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "reference_reconstruction": {
+      "type": "object",
+      "required": ["enabled", "reference_id", "contract_derivation", "audio_policy", "coverage_multiplier", "approval_authority", "master", "alternates", "source_authority", "layers", "conditioning_policy", "control_policy", "screen_insert"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "reference_id": {"type": "string"},
+        "contract_derivation": {"const": "automatic"},
+        "audio_policy": {"const": "strip_and_ignore"},
+        "coverage_multiplier": {"const": 3.0},
+        "approval_authority": {"const": "user_only"},
+        "master": {
+          "type": "object",
+          "required": ["fidelity", "cut_precision", "duration_multiplier", "invariants"],
+          "properties": {
+            "fidelity": {"const": "reference_faithful"},
+            "cut_precision": {"const": "approximate"},
+            "duration_multiplier": {"const": 1.0},
+            "invariants": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "alternates": {
+          "type": "object",
+          "required": ["enabled", "selection", "scope", "purpose", "duration_multiplier"],
+          "properties": {
+            "enabled": {"const": true},
+            "selection": {"const": "automatic"},
+            "scope": {"const": "existing_narrative"},
+            "purpose": {"const": "creative_pov_coverage"},
+            "duration_multiplier": {"const": 2.0}
+          }
+        },
+        "source_authority": {"type": "object", "additionalProperties": {"type": "string"}},
+        "layers": {"type": "object"},
+        "conditioning_policy": {
+          "type": "object",
+          "required": ["subject_layers", "k_identity_lora_scope", "cross_subject_attribute_transfer"],
+          "properties": {
+            "subject_layers": {"const": "strict_owner_only"},
+            "k_identity_lora_scope": {"const": "k_only"},
+            "cross_subject_attribute_transfer": {"const": "block"}
+          }
+        },
+        "control_policy": {
+          "type": "object",
+          "required": ["pose_track_scope", "hammer_control", "held_hammer_alignment"],
+          "properties": {
+            "pose_track_scope": {"const": "single_shot_no_cross_cut"},
+            "hammer_control": {"const": "independent_rigid_body_layer"},
+            "held_hammer_alignment": {"const": "grip_track"}
+          }
+        },
+        "screen_insert": {"type": "object"}
+      }
+    },
+    "environments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "reference_folder", "attribute_tags"],
+        "properties": {
+          "id": {"type": "string"},
+          "concept_id": {"type": ["string", "null"]},
+          "reference_folder": {"type": "string"},
+          "attribute_tags": {"type": "array", "items": {"type": "string"}},
+          "continuity": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "motion_references": {"type": "array", "items": {"type": "object"}},
+    "hierarchy": {
+      "type": "object",
+      "required": ["content_root", "script_sources"],
+      "properties": {
+        "content_root": {"type": "string"},
+        "script_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["glob", "adapter"],
+            "properties": {
+              "glob": {"type": "string"},
+              "adapter": {"enum": ["scene_factory_v1", "ad2184_v1"]}
+            }
+          }
+        }
+      }
+    },
+    "concept_registry": {"type": "string"}
+  }
+}

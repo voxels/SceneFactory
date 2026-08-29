@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.scene-factory/schemas/concepts.schema.json",
+  "title": "Scene Factory Repeating Concept Registry",
+  "type": "object",
+  "required": ["schema_version", "stack_policy", "concepts"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "stack_policy": {
+      "type": "object",
+      "required": ["maximum_active_loras", "require_combination_validation"],
+      "properties": {
+        "maximum_active_loras": {"type": "integer", "minimum": 1},
+        "require_combination_validation": {"type": "boolean"},
+        "default_weight": {"type": "number"}
+      }
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "trigger_token", "training", "inference"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"enum": ["character_identity", "background_group", "environment", "wardrobe", "prop", "style"]},
+          "trigger_token": {"type": "string", "minLength": 1},
+          "class_token": {"type": "string"},
+          "stable_attributes": {"type": "array", "items": {"type": "string"}},
+          "variable_attributes": {"type": "array", "items": {"type": "string"}},
+          "training": {
+            "type": "object",
+            "required": ["enabled", "source_globs", "minimum_approved_images", "validation_globs"],
+            "properties": {
+              "enabled": {"type": "boolean"},
+              "source_globs": {"type": "array", "items": {"type": "string"}},
+              "validation_globs": {"type": "array", "items": {"type": "string"}},
+              "minimum_approved_images": {"type": "integer", "minimum": 0},
+              "base_model": {"type": "string"},
+              "profile": {"type": ["string", "null"]},
+              "caption_order": {"type": "array", "items": {"type": "string"}},
+              "generated_sources_allowed": {"type": "boolean"}
+            }
+          },
+          "inference": {
+            "type": "object",
+            "required": ["strategy", "status", "default_weight", "minimum_weight", "maximum_weight"],
+            "properties": {
+              "strategy": {"enum": ["lora", "reference", "prompt", "prompt_reference"]},
+              "status": {"enum": ["planned", "training", "validation", "ready", "rejected"]},
+              "lora_path": {"type": ["string", "null"]},
+              "default_weight": {"type": "number"},
+              "minimum_weight": {"type": "number"},
+              "maximum_weight": {"type": "number"},
+              "allowed_with": {"type": "array", "items": {"type": "string"}},
+              "blocked_with": {"type": "array", "items": {"type": "string"}}
+            }
+          },
+          "validation_prompts": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

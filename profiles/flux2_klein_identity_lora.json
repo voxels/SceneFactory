@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "flux2_klein_identity_lora",
+  "use": "Baseline profile for a repeating foreground identity",
+  "model_family": "FLUX.2 Klein",
+  "training_base": "FLUX.2 Klein base 4B",
+  "inference_base": "FLUX.2 Klein 4B distilled",
+  "trainer": "official Diffusers train_dreambooth_lora_flux2_klein.py",
+  "settings": {
+    "resolution": 512,
+    "use_aspect_ratio_buckets": true,
+    "train_batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "gradient_checkpointing": false,
+    "cache_latents": true,
+    "offload": true,
+    "mixed_precision": "fp16",
+    "optimizer": "adamW",
+    "learning_rate": 0.0001,
+    "scheduler": "constant",
+    "warmup_steps": 30,
+    "maximum_steps": 300,
+    "checkpoint_steps": [
+      100,
+      200,
+      300
+    ],
+    "rank": 16,
+    "alpha": 16,
+    "guidance_scale": 1.0
+  },
+  "dataset_requirements": {
+    "minimum_approved_images": 24,
+    "separate_validation_set": true,
+    "near_duplicates_cross_splits": false,
+    "real_sources_default": true,
+    "required_view_coverage": ["front", "left three-quarter", "right three-quarter"],
+    "recommended_view_coverage": ["left profile", "right profile", "full body"],
+    "required_framing_coverage": ["close", "medium", "wide"]
+  },
+  "validation": {
+    "weight_sweep": [0.65, 0.75, 0.85, 0.95, 1.0],
+    "check_identity_alone": true,
+    "check_every_allowed_stack": true,
+    "reject_for": ["identity drift", "age drift", "source-background overfit", "anatomy defects", "wardrobe leakage", "trigger leakage"]
+  },
+  "notice": "This is a project baseline, not a universal optimum. Keep the fixed validation set and change one training variable at a time."
+}

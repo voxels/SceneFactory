@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.scene-factory/schemas/pipeline.schema.json",
+  "title": "Scene Factory Production Pipeline",
+  "type": "object",
+  "required": ["schema_version", "project_id", "stages"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string"},
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "inputs", "outputs", "blockers"],
+        "properties": {
+          "id": {"type": "string"},
+          "status": {"enum": ["pending", "ready", "in_progress", "complete", "blocked", "rejected"]},
+          "inputs": {"type": "array", "items": {"type": "string"}},
+          "outputs": {"type": "array", "items": {"type": "string"}},
+          "blockers": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

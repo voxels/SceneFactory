@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "stack_policy": {
+    "maximum_active_loras": 3,
+    "require_combination_validation": true,
+    "default_weight": 0.8
+  },
+  "concepts": [
+    {
+      "id": "lead_identity",
+      "type": "character_identity",
+      "trigger_token": "lead_identity",
+      "class_token": "person",
+      "stable_attributes": [],
+      "variable_attributes": ["expression", "pose", "camera angle", "lighting", "background"],
+      "training": {
+        "enabled": true,
+        "source_globs": ["assets/foreground_characters/lead/approved/*"],
+        "validation_globs": ["assets/foreground_characters/lead/validation/*"],
+        "minimum_approved_images": 24,
+        "base_model": "FLUX.2 Klein base 4B",
+        "profile": "profiles/flux2_klein_identity_lora.json",
+        "caption_order": ["trigger", "class", "stable attributes", "visible variable attributes"],
+        "generated_sources_allowed": false
+      },
+      "inference": {
+        "strategy": "lora",
+        "status": "planned",
+        "lora_path": "${COMFYUI_MODELS_ROOT}/loras/lead_identity/pytorch_lora_weights.safetensors",
+        "default_weight": 0.85,
+        "minimum_weight": 0.6,
+        "maximum_weight": 1.0,
+        "allowed_with": [],
+        "blocked_with": []
+      },
+      "validation_prompts": [
+        "lead_identity person, front portrait, neutral expression, plain light",
+        "lead_identity person, left three-quarter portrait, plain light",
+        "lead_identity person, right profile, plain light",
+        "lead_identity person, full body, neutral stance, plain background"
+      ]
+    }
+  ]
+}
