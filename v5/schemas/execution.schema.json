@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.scene-factory/schemas/execution.schema.json",
+  "title": "Scene Factory Execution Status",
+  "type": "object",
+  "required": ["schema_version", "project_id", "output_root", "comfy_output_namespace", "counts", "stages", "jobs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string"},
+    "output_root": {"type": "string"},
+    "comfy_output_namespace": {"type": "string"},
+    "live": {
+      "type": "object",
+      "properties": {
+        "available": {"type": "boolean"}
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": ["jobs", "running", "output_present", "approved", "failed", "output_missing"],
+      "properties": {
+        "jobs": {"type": "integer"},
+        "running": {"type": "integer"},
+        "queued": {"type": "integer"},
+        "output_present": {"type": "integer"},
+        "approved": {"type": "integer"},
+        "failed": {"type": "integer"},
+        "output_missing": {"type": "integer"}
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "status": {"enum": ["not_started", "ready", "active", "complete", "blocked", "failed", "needs_approval"]},
+          "required": {"type": "integer"},
+          "approved": {"type": "integer"},
+          "running": {"type": "array", "items": {"type": "string"}},
+          "blockers": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "stage", "phase", "state"],
+        "properties": {
+          "id": {"type": "string"},
+          "stage": {"type": "string"},
+          "phase": {"type": "string"},
+          "state": {
+            "enum": [
+              "not_compiled",
+              "graph_ready",
+              "queued",
+              "running",
+              "failed",
+              "output_missing",
+              "output_present",
+              "approved",
+              "rejected"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
