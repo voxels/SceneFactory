@@ -1,0 +1,79 @@
+{
+  "2": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "voice_clone/gage_final_reference.wav"
+    }
+  },
+  "3": {
+    "class_type": "CharacterVoicesNode",
+    "inputs": {
+      "voice_name": "none",
+      "reference_text": "We're boarding a flight to Albania, and we'll be on Swiss Airlines for his birthday. Yeah, because apparently no one knows that I have one when it's almost five years in April, actually. But we're going to Albania, and we're on Swiss Airlines, and we're comfy, we're cozy, and I'm ready to eat and fall asleep. What is that? And the lighting is hitting on this plane right now. So we landed at Corfu, Greece. We are here in a shared Uber taxi. We made it to Dhërmi. Oops, I was supposed to drink it. We're in Dhërmi for his birthday, and I did mention it, so. It's crazy because I feel like this is going to be the future. So, a little bit. ",
+      "trim_start": 0.0,
+      "trim_end": 0.0,
+      "customized": false,
+      "opt_audio_input": [
+        "2",
+        0
+      ]
+    }
+  },
+  "4": {
+    "class_type": "Qwen3TTSEngineNode",
+    "inputs": {
+      "model_variant": "TTS - Base 1.7B (Voice Clone)",
+      "device": "auto",
+      "voice_preset": "None (Zero-shot / Custom)",
+      "language": "English",
+      "instruct": "Closely match the reference speaker’s natural pronunciation, cadence, rhythm, vocal weight, and relaxed conversational delivery. Use varied sentence-level intonation and natural emphasis. Avoid broadcast or corporate-presenter diction.",
+      "top_k": 50,
+      "top_p": 0.95,
+      "temperature": 0.72,
+      "repetition_penalty": 1.05,
+      "max_new_tokens": 2048,
+      "dtype": "float32",
+      "attn_implementation": "sdpa",
+      "x_vector_only_mode": false,
+      "use_torch_compile": false,
+      "use_cuda_graphs": false,
+      "compile_mode": "default",
+      "asr_use_forced_aligner": false,
+      "asr_translate_target_language": "English",
+      "asr_translate_instruction_override": "Translate the speech from {source_language} into {target_language} text. Return only the translated text.",
+      "runtime_mode": "⚠️ Shared Runtime"
+    }
+  },
+  "5": {
+    "class_type": "UnifiedTTSTextNode",
+    "inputs": {
+      "TTS_engine": [
+        "4",
+        0
+      ],
+      "text": "My book is fairly diversified between commercial print and high-output athletic lifestyle. On the commercial side, it's about delivering a polished, high-value aesthetic that drives aspiration. For the athletic work, I rely on a lifetime of organic, outdoor conditioning. It's not just about hitting static poses; I'm generating genuine kinetic force and structural alignment. That translates to a higher-yield image for the client because the movement feels grounded and structurally authentic.",
+      "narrator_voice": "none",
+      "seed": 43,
+      "opt_narrator": [
+        "3",
+        0
+      ],
+      "enable_chunking": true,
+      "max_chars_per_chunk": 180,
+      "chunk_combination_method": "silence_padding",
+      "silence_between_chunks_ms": 140,
+      "enable_audio_cache": false,
+      "batch_size": 0
+    }
+  },
+  "7": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "5",
+        0
+      ],
+      "filename_prefix": "voice_clone/gage_final_p02"
+    }
+  }
+}

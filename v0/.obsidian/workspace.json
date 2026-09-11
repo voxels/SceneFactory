@@ -1,0 +1,209 @@
+{
+  "main": {
+    "id": "d93056cfa422b796",
+    "type": "split",
+    "children": [
+      {
+        "id": "1c4d90b12ab4b311",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bf651a4b69073802",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "USER_TEST_GUIDE.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "USER_TEST_GUIDE"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "0f91bad0bd3d50ca",
+    "type": "split",
+    "children": [
+      {
+        "id": "6df65435ac9a8a7c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9377cfe26f224bdf",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "296b6e8c6d6b0f50",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "7c23ff1827899257",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "07b0fbfe2904bf25",
+    "type": "split",
+    "children": [
+      {
+        "id": "85b6e2af75664847",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "553c38ac00a0f657",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "USER_TEST_GUIDE.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "082b690a59e1046e",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "USER_TEST_GUIDE.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "d2f61ccb0ff3b37b",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "d4f79f012a1d00cd",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "f89d7275edf5d46a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "USER_TEST_GUIDE.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "bf651a4b69073802",
+  "lastOpenFiles": [
+    "examples/ad2184/build/captions/raw/k0l3k4__fcc4eea5b30eec49.txt",
+    "examples/ad2184/build/captions/results/k0l3k4__513e89d9bf0bd63a.json",
+    "examples/ad2184/build/captions/raw/k0l3k4__513e89d9bf0bd63a.txt",
+    "examples/ad2184/build/captions/results/k0l3k4__f1d65ba441927a07.json",
+    "examples/ad2184/build/captions/raw/k0l3k4__f1d65ba441927a07.txt",
+    "examples/ad2184/build/captions/results/k0l3k4__982d348bf7239e9d.json",
+    "examples/ad2184/build/captions/raw/k0l3k4__982d348bf7239e9d.txt",
+    "examples/ad2184/build/captions/results/k0l3k4__5a9eb9daea3fed8e.json",
+    "examples/ad2184/build/captions/raw/k0l3k4__5a9eb9daea3fed8e.txt",
+    "examples/ad2184/build/captions/results/k0l3k4__3bc6b647872d37e0.json",
+    "examples/ad2184/build/captions/raw/k0l3k4__3bc6b647872d37e0.txt",
+    "docs/09_PRODUCTION_PROCESS.md",
+    "README.md",
+    "LORA_CONCEPT_POLICY.md",
+    "USER_TEST_GUIDE.md"
+  ]
+}

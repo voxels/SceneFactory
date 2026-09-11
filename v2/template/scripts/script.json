@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "scenes": [
+    {
+      "id": "scene_01",
+      "title": "First Scene",
+      "environment_id": "main_environment",
+      "continuity": [],
+      "shots": [
+        {
+          "id": "shot_01",
+          "duration_seconds": 15,
+          "cast": ["lead", "background_group"],
+          "active_concepts": ["lead_identity"],
+          "action": "Describe the complete action.",
+          "audio": [],
+          "continuity": [],
+          "negative": ["identity drift", "extra limbs", "unreadable action"],
+          "formations": [
+            {"id": "wide", "framing": "wide", "camera": "Describe the wide camera path.", "lens": "24mm", "subject_priority": "action path and environment"},
+            {"id": "medium", "framing": "medium", "camera": "Describe the medium camera path.", "lens": "50mm", "subject_priority": "character action"},
+            {"id": "detail", "framing": "close", "camera": "Describe the close camera path.", "lens": "85mm", "subject_priority": "face, hands, or story detail"}
+          ]
+        }
+      ]
+    }
+  ]
+}

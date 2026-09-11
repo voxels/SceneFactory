@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.scene-factory/schemas/script.schema.json",
+  "title": "Scene Factory Script",
+  "type": "object",
+  "required": ["schema_version", "scenes"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "environment_id", "shots"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "environment_id": {"type": "string"},
+          "continuity": {"type": "array", "items": {"type": "string"}},
+          "shots": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["id", "duration_seconds", "cast", "action", "formations"],
+              "properties": {
+                "id": {"type": "string"},
+                "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+                "cast": {"type": "array", "items": {"type": "string"}},
+                "props": {"type": "array", "items": {"type": "string"}},
+                "active_concepts": {"type": "array", "items": {"type": "string"}},
+                "action": {"type": "string"},
+                "audio": {"type": "array", "items": {"type": "string"}},
+                "continuity": {"type": "array", "items": {"type": "string"}},
+                "negative": {"type": "array", "items": {"type": "string"}},
+                "motion_reference_id": {"type": "string"},
+                "formations": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "framing", "camera", "subject_priority"],
+                    "properties": {
+                      "id": {"type": "string"},
+                      "framing": {"type": "string"},
+                      "camera": {"type": "string"},
+                      "lens": {"type": "string"},
+                      "subject_priority": {"type": "string"},
+                      "start_pose": {"type": "string"},
+                      "end_pose": {"type": "string"},
+                      "environment_motion": {"type": "string"},
+                      "negative_motion": {"type": "array", "items": {"type": "string"}}
+                      ,"blocking": {
+                        "type": "object",
+                        "properties": {
+                          "subject_positions": {"type": "array", "items": {"type": "string"}},
+                          "anatomy": {"type": "array", "items": {"type": "string"}},
+                          "prop_state": {"type": "array", "items": {"type": "string"}}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

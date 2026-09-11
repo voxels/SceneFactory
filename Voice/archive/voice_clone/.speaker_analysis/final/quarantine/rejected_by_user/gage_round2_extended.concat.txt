@@ -1,0 +1,3 @@
+file '/Users/voxels/SceneFactory/v3/voice_clone/.speaker_analysis/final/review/gage_round2_extended/Hidden - 4 of 6_00025.750_00028.250.wav'
+file '/Users/voxels/SceneFactory/v3/voice_clone/.speaker_analysis/final/review/silence.wav'
+file '/Users/voxels/SceneFactory/v3/voice_clone/.speaker_analysis/final/review/gage_round2_extended/Hidden - 5 of 6_00017.650_00020.000.wav'

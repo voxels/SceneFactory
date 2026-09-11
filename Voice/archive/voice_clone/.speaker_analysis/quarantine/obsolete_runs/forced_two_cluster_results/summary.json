@@ -1,0 +1,19 @@
+{
+  "cross_reference_similarity": 0.23089,
+  "gage_cluster": 0,
+  "cluster_similarity_to_gage": [
+    0.1174,
+    0.10772
+  ],
+  "counts": {
+    "gage_candidate": 2,
+    "ryan_candidate": 170,
+    "ambiguous": 113
+  },
+  "durations_seconds": {
+    "gage_candidate": 3.48,
+    "ryan_candidate": 323.91,
+    "ambiguous": 288.84
+  },
+  "warning": "Machine labels are candidates only; approve by listening before training."
+}

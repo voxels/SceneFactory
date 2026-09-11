@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "series_id": "replace_with_series_id",
+  "episode_id": "new_project",
+  "series_bible": "/absolute/path/to/series_root/series_bible/SERIES_BIBLE.md",
+  "shared_asset_root": "/absolute/path/to/series_root/shared_assets",
+  "script_version": "draft-001",
+  "coverage_multiplier": 3.0,
+  "generation_audio_policy": "strip_and_ignore",
+  "approval_authority": "user_only",
+  "notes": "Documentation metadata; Scene Factory v1 does not currently validate this file."
+}

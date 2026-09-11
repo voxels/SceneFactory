@@ -1,0 +1,336 @@
+{
+  "id": "0a964d22-cc9e-4722-9113-86009513adf1",
+  "revision": 0,
+  "last_node_id": 13,
+  "last_link_id": 13,
+  "nodes": [
+    {
+      "id": 2,
+      "type": "LoadAudio",
+      "pos": [
+        100,
+        130
+      ],
+      "size": [
+        290,
+        140
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadAudio"
+      },
+      "widgets_values": [
+        "gage_reference_max_custom.wav",
+        null,
+        null
+      ],
+      "widgets_values_named": {
+        "audio": "gage_reference_max_custom.wav",
+        "upload": null
+      }
+    },
+    {
+      "id": 4,
+      "type": "Qwen3TTSEngineNode",
+      "pos": [
+        100,
+        400
+      ],
+      "size": [
+        400,
+        700
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "TTS_engine",
+          "type": "TTS_ENGINE",
+          "links": [
+            6
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Qwen3TTSEngineNode"
+      },
+      "widgets_values": [
+        "TTS - Base 1.7B (Voice Clone)",
+        "auto",
+        "None (Zero-shot / Custom)",
+        "English",
+        "Closely match the reference speaker’s natural pronunciation, cadence, rhythm, vocal weight, and relaxed conversational delivery. Avoid broadcast or corporate-presenter diction.",
+        50,
+        0.95,
+        0.7,
+        1.05,
+        2048,
+        "float32",
+        "sdpa",
+        false,
+        false,
+        false,
+        "default",
+        false,
+        "English",
+        "Translate the speech from {source_language} into {target_language} text. Return only the translated text.",
+        "⚠️ Shared Runtime"
+      ],
+      "widgets_values_named": {
+        "model_variant": "TTS - Base 1.7B (Voice Clone)",
+        "device": "auto",
+        "voice_preset": "None (Zero-shot / Custom)",
+        "language": "English",
+        "instruct": "Closely match the reference speaker’s natural pronunciation, cadence, rhythm, vocal weight, and relaxed conversational delivery. Avoid broadcast or corporate-presenter diction.",
+        "top_k": 50,
+        "top_p": 0.95,
+        "temperature": 0.7,
+        "repetition_penalty": 1.05,
+        "max_new_tokens": 2048,
+        "dtype": "float32",
+        "attn_implementation": "sdpa",
+        "x_vector_only_mode": false,
+        "use_torch_compile": false,
+        "use_cuda_graphs": false,
+        "compile_mode": "default",
+        "asr_use_forced_aligner": false,
+        "asr_translate_target_language": "English",
+        "asr_translate_instruction_override": "Translate the speech from {source_language} into {target_language} text. Return only the translated text.",
+        "runtime_mode": "⚠️ Shared Runtime"
+      }
+    },
+    {
+      "id": 5,
+      "type": "UnifiedTTSTextNode",
+      "pos": [
+        1130,
+        130
+      ],
+      "size": [
+        400,
+        370
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "TTS_engine",
+          "type": "TTS_ENGINE",
+          "link": 6
+        },
+        {
+          "name": "opt_narrator",
+          "shape": 7,
+          "type": "*",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            9
+          ]
+        },
+        {
+          "name": "generation_info",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UnifiedTTSTextNode"
+      },
+      "widgets_values": [
+        "Absolutely. High-volume e-com is really an exercise in resource allocation. You're routinely pacing 30 to 40 looks a day, so it's all about maintaining equilibrium over a ten-hour block. You can't redline your energy in the morning and crash after lunch. I lock into a steady flow state early on, managing my stamina so that the physical output and precision on the final frame perfectly match the very first.",
+        "none",
+        43,
+        "fixed",
+        true,
+        200,
+        "silence_padding",
+        150,
+        false,
+        0
+      ],
+      "widgets_values_named": {
+        "text": "Absolutely. High-volume e-com is really an exercise in resource allocation. You're routinely pacing 30 to 40 looks a day, so it's all about maintaining equilibrium over a ten-hour block. You can't redline your energy in the morning and crash after lunch. I lock into a steady flow state early on, managing my stamina so that the physical output and precision on the final frame perfectly match the very first.",
+        "narrator_voice": "none",
+        "seed": 43,
+        "control_after_generate": "fixed",
+        "enable_chunking": true,
+        "max_chars_per_chunk": 200,
+        "chunk_combination_method": "silence_padding",
+        "silence_between_chunks_ms": 150,
+        "enable_audio_cache": false,
+        "batch_size": 0
+      }
+    },
+    {
+      "id": 8,
+      "type": "SaveAudioAdvanced",
+      "pos": [
+        1650,
+        120
+      ],
+      "size": [
+        270,
+        140
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "output/remi_modeling_interview_paragraph_01",
+        "flac"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "output/remi_modeling_interview_paragraph_01",
+        "format": "flac"
+      }
+    },
+    {
+      "id": 13,
+      "type": "CharacterVoicesNode",
+      "pos": [
+        550,
+        200
+      ],
+      "size": [
+        430,
+        390
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "opt_audio_input",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "opt_narrator",
+          "type": "NARRATOR_VOICE",
+          "links": [
+            12
+          ]
+        },
+        {
+          "name": "character_name",
+          "type": "STRING",
+          "links": null
+        },
+        {
+          "name": "reference_audio_only",
+          "type": "AUDIO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CharacterVoicesNode"
+      },
+      "widgets_values": [
+        "none",
+        "We're boarding a flight to Albania, and we'll be on Swiss Airlines for his birthday. Yeah, because apparently no one knows that I have one when it's almost five years in April, actually. But we're going to Albania, and we're on Swiss Airlines, and we're comfy, we're cozy, and I'm ready to eat and fall asleep. What is that? And the lighting is hitting on this plane right now. So we landed at Corfu, Greece. We are here in a shared Uber taxi. We made it to Dhërmi. Oops, I was supposed to drink it. We're in Dhërmi for his birthday, and I did mention it, so.",
+        0,
+        0,
+        true,
+        ""
+      ],
+      "widgets_values_named": {
+        "voice_name": "none",
+        "reference_text": "We're boarding a flight to Albania, and we'll be on Swiss Airlines for his birthday. Yeah, because apparently no one knows that I have one when it's almost five years in April, actually. But we're going to Albania, and we're on Swiss Airlines, and we're comfy, we're cozy, and I'm ready to eat and fall asleep. What is that? And the lighting is hitting on this plane right now. So we landed at Corfu, Greece. We are here in a shared Uber taxi. We made it to Dhërmi. Oops, I was supposed to drink it. We're in Dhërmi for his birthday, and I did mention it, so.",
+        "trim_start": 0,
+        "trim_end": 0,
+        "customized": true,
+        "voice_reference_editor": ""
+      }
+    }
+  ],
+  "links": [
+    [
+      6,
+      4,
+      0,
+      5,
+      0,
+      "TTS_ENGINE"
+    ],
+    [
+      9,
+      5,
+      0,
+      8,
+      0,
+      "AUDIO"
+    ],
+    [
+      12,
+      13,
+      0,
+      5,
+      1,
+      "NARRATOR_VOICE"
+    ],
+    [
+      13,
+      2,
+      0,
+      13,
+      0,
+      "AUDIO"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7460018755011215,
+      "offset": [
+        666.9321396324708,
+        238.34349025191432
+      ]
+    },
+    "frontendVersion": "1.49.6",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

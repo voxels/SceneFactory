@@ -1,0 +1,37 @@
+DRAFT — verify uncertain lines before using as an exact TTS reference transcript
+
+00:00.00–00:04.94
+We're boarding a flight to Albania, and we'll be on Swiss Airlines for his birthday.
+
+00:05.42–00:11.40
+Yeah, because apparently no one knows that I have one when it's almost five years in April, actually.
+
+00:11.74–00:22.48
+But we're going to Albania, and we're on Swiss Airlines, and we're comfy, we're cozy, and I'm ready to eat and fall asleep.
+
+00:22.98–00:23.50
+What is that?
+
+00:23.98–00:26.04
+[UNCERTAIN: small.en heard “And the lighting is getting on his plane right now.”]
+
+00:26.32–00:28.12
+[UNCERTAIN: small.en heard “So we loaded up some cord for grabs.”]
+
+00:28.12–00:33.12
+We are here in a shared Uber taxi.
+
+00:33.78–00:37.46
+We made it to Dhërmi.
+
+00:37.56–00:38.92
+Oops, I was supposed to drink it.
+
+00:39.20–00:43.66
+We're in Dhërmi for his birthday, and I did mention it, so.
+
+Notes
+- “eat and fall asleep” is corroborated by the previously verified TikTok excerpt.
+- “apparently” is the base.en reading; small.en heard “currently.”
+- Place-name spelling “Dhërmi” is normalized from the ASR reading “Dermi.”
+- Do not remove the uncertainty markers without listening confirmation.

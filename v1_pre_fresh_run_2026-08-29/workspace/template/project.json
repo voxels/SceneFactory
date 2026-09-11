@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "project": {
+    "id": "new_project",
+    "title": "New Project",
+    "format": {"width": 864, "height": 1536, "fps": 24, "duration_seconds": 15}
+  },
+  "models": {
+    "captioner": {
+      "provider": "huggingface",
+      "model": "Qwen3.5-9B",
+      "model_path": "${QWEN_VISION_MODEL_PATH}",
+      "processor_path": "${QWEN_VISION_PROCESSOR_PATH}",
+      "python": "${VISION_PYTHON}",
+      "device": "mps",
+      "dtype": "bfloat16",
+      "max_new_tokens": 1024,
+      "retry_max_new_tokens": 2048,
+      "min_image_pixels": 65536,
+      "max_image_pixels": 1048576
+    },
+    "prompt_planner": "Qwen",
+    "image_generator": {"name": "FLUX.2 Klein 4B distilled", "steps": 4, "guidance": 1.0},
+    "identity_trainer": "FLUX.2 Klein LoRA",
+    "video_generator": {"name": "LTX 2.5", "mode": "image-to-video"}
+  },
+  "path_defaults": {
+    "SOURCE_ROOT": "${PROJECT_ROOT}",
+    "COMFYUI_MODELS_ROOT": "/Users/voxels/ComfyUI-Shared/models",
+    "COMFYUI_INPUT_ROOT": "/Users/voxels/ComfyUI-Shared/input",
+    "LTX_MODELS_ROOT": "/Users/voxels/Library/Application Support/LTXDesktop/models/ltx-2.5",
+    "LTX_WORKFLOW_TEMPLATE": "/Users/voxels/ComfyUI-Installs/ComfyUI/ComfyUI/custom_nodes/ComfyUI-LTXVideo/example_workflows/2.5/LTX-2.5_T2V_I2V_Single_Stage_Distilled.json",
+    "OUTPUT_ROOT": "${PROJECT_ROOT}/outputs",
+    "QWEN_VISION_MODEL_PATH": "/Users/voxels/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "QWEN_VISION_PROCESSOR_PATH": "/Users/voxels/.cache/huggingface/hub/models--Qwen--Qwen3.8-27B/snapshots/1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+    "VISION_PYTHON": "/Users/voxels/comfy/.venv/bin/python"
+  },
+  "defaults": {
+    "formations_per_shot": 3,
+    "video_frame_rule": "mod8_plus1",
+    "identity_review_required": true,
+    "keyframe_review_required": true,
+    "motion_proof_seconds": 3,
+    "extended_clip_seconds": 5,
+    "approved_candidates_only_for_video": true,
+    "typography_stage": "post"
+  },
+  "production_constraints": {
+    "required": ["attributes remain attached only to their named subject or prop", "visible anatomy is coherent"],
+    "issue_codes": ["SUBJECT_BINDING", "ANATOMY", "PROP_GEOMETRY", "IDENTITY_DRIFT"]
+  },
+  "characters": [
+    {
+      "id": "lead",
+      "role": "foreground",
+      "identity_tag": "lead_identity",
+      "concept_id": "lead_identity",
+      "source_folder": "assets/foreground_characters/lead/source",
+      "attribute_tags": ["adult person"],
+      "continuity": [],
+      "training": {"enabled": true, "minimum_approved_images": 24}
+    },
+    {
+      "id": "background_group",
+      "role": "background",
+      "identity_tag": "background_group",
+      "concept_id": null,
+      "source_folder": "assets/background_characters/background_group/source",
+      "attribute_tags": ["consistent background group"],
+      "continuity": [],
+      "training": {"enabled": false}
+    }
+  ],
+  "environments": [
+    {
+      "id": "main_environment",
+      "concept_id": null,
+      "reference_folder": "assets/environments/main_environment/reference",
+      "attribute_tags": ["consistent location"],
+      "continuity": []
+    }
+  ],
+  "motion_references": [],
+  "hierarchy": {
+    "content_root": "${SOURCE_ROOT}",
+    "script_sources": [
+      {"glob": "scripts/**/*.json", "adapter": "scene_factory_v1"}
+    ]
+  },
+  "concept_registry": "concepts.json"
+}

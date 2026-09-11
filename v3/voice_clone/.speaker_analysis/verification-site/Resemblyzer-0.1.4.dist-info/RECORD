@@ -1,0 +1,12 @@
+Resemblyzer-0.1.4.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2
+Resemblyzer-0.1.4.dist-info/LICENSE,sha256=g1y9xb3Gxg-uh05UTn1bpkjXfSXscuTC78JrX94IYsM,10948
+Resemblyzer-0.1.4.dist-info/METADATA,sha256=qNyk-Rxm0VlCFq-FCAIC_GR18J-KDkxYIs4LYL9AHrI,5810
+Resemblyzer-0.1.4.dist-info/RECORD,,
+Resemblyzer-0.1.4.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+Resemblyzer-0.1.4.dist-info/WHEEL,sha256=yQN5g4mg4AybRjkgi-9yy4iQEFibGQmlz78Pik5Or-A,92
+Resemblyzer-0.1.4.dist-info/top_level.txt,sha256=IpEn86WuURtFosS3Tg9s7LfkvGYOo9qJAueWdCejj4g,12
+resemblyzer/__init__.py,sha256=achBhhr7IhCwKwrID9aTbkjL-AK6DaA7a6pjUF4J8OE,238
+resemblyzer/audio.py,sha256=xDvZ5BW5dIe48fbgvPTUEFXvKy3Gp6bVwt013Oo2D_Q,4457
+resemblyzer/hparams.py,sha256=URq-U7dRUmP_M-HA6vgvf_qhZfl3uQ3vMSGCoV37ga4,946
+resemblyzer/pretrained.pt,sha256=OTc7hlmPo9qfzd7mFCOC7-CXd-jTfcnAVh9B8AcPE04,17090379
+resemblyzer/voice_encoder.py,sha256=ya0Bb8xOYn1Esn9FlwAe7DYKbG9BKGKXyCCmWs_pB2c,9368

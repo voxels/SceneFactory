@@ -1,0 +1,367 @@
+{
+  "id": "scene-factory-offline-voice-clone-macos",
+  "revision": 0,
+  "last_node_id": 20,
+  "last_link_id": 12,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "MarkdownNote",
+      "pos": [-1280, 80],
+      "size": [520, 420],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "# Offline voice clone — M2 Max\n\n**Default engine:** Qwen3-TTS 12Hz 1.7B **Base** (zero-shot clone).\n**Device:** engine dropdown is `auto`/`cuda`/`cpu`. On Apple Silicon, TTS Audio Suite resolves `auto` → **MPS**.\n**Precision:** `float32`. Base clone on MPS NaNs in fp16/bf16.\n**Attention:** `sdpa`. Do not use flash-attn or CUDA graphs.\n**torch.compile:** off.\n**Runtime:** Shared Runtime (Qwen3 is fragile on Transformers 5 in the main env).\n\n## Reference\n1. `./extract_reference.sh clip.mp4` → 6–15s mono 22050 Hz WAV\n2. Copy to Comfy input as `voice_clone/reference.wav`\n3. Paste the **exact transcript** into Character Voices\n4. Queue **only the Qwen group** first. Unmute F5 for A/B.\n\nUnload large FLUX/LTX graphs before running TTS if VRAM/unified memory is contended.\nNo cloud APIs. First run may download; after cache, offline."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 2,
+      "type": "LoadAudio",
+      "pos": [-680, 80],
+      "size": [280, 140],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "AUDIO", "type": "AUDIO", "links": [1] }
+      ],
+      "properties": { "Node name for S&R": "LoadAudio" },
+      "widgets_values": ["voice_clone/reference.wav", null, ""],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 3,
+      "type": "CharacterVoicesNode",
+      "pos": [-360, 80],
+      "size": [300, 220],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        { "name": "opt_audio_input", "shape": 7, "type": "AUDIO", "link": 1 }
+      ],
+      "outputs": [
+        { "name": "opt_narrator", "type": "NARRATOR_VOICE", "links": [2, 8] },
+        { "name": "character_name", "type": "STRING", "links": null },
+        { "name": "reference_audio_only", "type": "AUDIO", "links": null }
+      ],
+      "properties": { "Node name for S&R": "CharacterVoicesNode" },
+      "widgets_values": [
+        "none",
+        "__REFERENCE_TRANSCRIPT_REQUIRED__",
+        0.0,
+        0.0,
+        false
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 4,
+      "type": "Qwen3TTSEngineNode",
+      "pos": [-680, 360],
+      "size": [400, 580],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "TTS_engine", "type": "TTS_ENGINE", "links": [3] }
+      ],
+      "properties": { "Node name for S&R": "Qwen3TTSEngineNode" },
+      "widgets_values": [
+        "TTS - Base 1.7B (Voice Clone)",
+        "auto",
+        "None (Zero-shot / Custom)",
+        "English",
+        "",
+        50,
+        1.0,
+        0.9,
+        1.05,
+        2048,
+        "float32",
+        "sdpa",
+        false,
+        false,
+        false,
+        "default",
+        false,
+        "English",
+        "Translate the speech from {source_language} into {target_language} text. Return only the translated text.",
+        "⚠️ Shared Runtime"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 5,
+      "type": "UnifiedTTSTextNode",
+      "pos": [-240, 360],
+      "size": [400, 380],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        { "name": "TTS_engine", "type": "TTS_ENGINE", "link": 3 },
+        { "name": "opt_narrator", "shape": 7, "type": "*", "link": 2 },
+        { "name": "text", "type": "STRING", "widget": { "name": "text" }, "link": null }
+      ],
+      "outputs": [
+        { "name": "audio", "type": "AUDIO", "links": [4, 5] },
+        { "name": "generation_info", "type": "STRING", "links": [6] }
+      ],
+      "properties": { "Node name for S&R": "UnifiedTTSTextNode" },
+      "widgets_values": [
+        "We're comfy, we're cozy, and I'm ready to eat and fall asleep.",
+        "none",
+        42,
+        "fixed",
+        true,
+        400,
+        "crossfade",
+        100,
+        true,
+        0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 6,
+      "type": "PreviewAudio",
+      "pos": [200, 360],
+      "size": [320, 90],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        { "name": "audio", "type": "AUDIO", "link": 4 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "PreviewAudio" },
+      "widgets_values": [],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 7,
+      "type": "SaveAudio",
+      "pos": [200, 480],
+      "size": [320, 100],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        { "name": "audio", "type": "AUDIO", "link": 5 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "SaveAudio" },
+      "widgets_values": ["voice_clone/qwen3_base_clone"],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 8,
+      "type": "PreviewAny",
+      "pos": [200, 620],
+      "size": [320, 160],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        { "name": "source", "type": "*", "link": 6 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "PreviewAny" },
+      "widgets_values": []
+    },
+    {
+      "id": 9,
+      "type": "MarkdownNote",
+      "pos": [-680, 1000],
+      "size": [400, 220],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "# F5-TTS v1 A/B (muted by default)\n\nSame reference + transcript as Qwen3.\nThis group is **never** (`mode 4`) so a default queue does not load F5.\n\nTo A/B: select the F5 TTS Text node → bypass off, then queue.\nF5 **requires** matching reference text. Device dropdown here includes `mps` — leave it on `mps`.\nF5-TTS v1 Base auto-downloads to `models/TTS/F5-TTS/F5TTS_v1_Base/` on first unmuted run."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 10,
+      "type": "F5TTSEngineNode",
+      "pos": [-240, 1000],
+      "size": [280, 230],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "TTS_engine", "type": "TTS_ENGINE", "links": [7] }
+      ],
+      "properties": { "Node name for S&R": "F5TTSEngineNode" },
+      "widgets_values": ["F5TTS_v1_Base", "mps", 0.8, 1.0, 0.1, 0.15, 32, 2.0],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 11,
+      "type": "UnifiedTTSTextNode",
+      "pos": [80, 1000],
+      "size": [400, 380],
+      "flags": {},
+      "order": 10,
+      "mode": 4,
+      "inputs": [
+        { "name": "TTS_engine", "type": "TTS_ENGINE", "link": 7 },
+        { "name": "opt_narrator", "shape": 7, "type": "*", "link": 8 },
+        { "name": "text", "type": "STRING", "widget": { "name": "text" }, "link": null }
+      ],
+      "outputs": [
+        { "name": "audio", "type": "AUDIO", "links": [9, 10] },
+        { "name": "generation_info", "type": "STRING", "links": [11] }
+      ],
+      "properties": { "Node name for S&R": "UnifiedTTSTextNode" },
+      "widgets_values": [
+        "We're comfy, we're cozy, and I'm ready to eat and fall asleep.",
+        "none",
+        42,
+        "fixed",
+        true,
+        400,
+        "crossfade",
+        100,
+        true,
+        0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 12,
+      "type": "PreviewAudio",
+      "pos": [520, 1000],
+      "size": [320, 90],
+      "flags": {},
+      "order": 11,
+      "mode": 4,
+      "inputs": [
+        { "name": "audio", "type": "AUDIO", "link": 9 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "PreviewAudio" },
+      "widgets_values": [],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 13,
+      "type": "SaveAudio",
+      "pos": [520, 1120],
+      "size": [320, 100],
+      "flags": {},
+      "order": 12,
+      "mode": 4,
+      "inputs": [
+        { "name": "audio", "type": "AUDIO", "link": 10 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "SaveAudio" },
+      "widgets_values": ["voice_clone/f5tts_v1_clone"],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 14,
+      "type": "PreviewAny",
+      "pos": [520, 1260],
+      "size": [320, 160],
+      "flags": {},
+      "order": 13,
+      "mode": 4,
+      "inputs": [
+        { "name": "source", "type": "*", "link": 11 }
+      ],
+      "outputs": [],
+      "properties": { "Node name for S&R": "PreviewAny" },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "type": "MarkdownNote",
+      "pos": [200, 80],
+      "size": [360, 240],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "# Outputs\n\nComfy Desktop writes to `/Users/voxels/ComfyUI-Shared/output/`.\n\nQwen FLAC prefix: `voice_clone/qwen3_base_clone`\nF5 FLAC prefix: `voice_clone/f5tts_v1_clone`\n\nDo not treat a saved file as an approved production voice. Listen first."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [1, 2, 0, 3, 0, "AUDIO"],
+    [2, 3, 0, 5, 1, "*"],
+    [3, 4, 0, 5, 0, "TTS_ENGINE"],
+    [4, 5, 0, 6, 0, "AUDIO"],
+    [5, 5, 0, 7, 0, "AUDIO"],
+    [6, 5, 1, 8, 0, "*"],
+    [7, 10, 0, 11, 0, "TTS_ENGINE"],
+    [8, 3, 0, 11, 1, "*"],
+    [9, 11, 0, 12, 0, "AUDIO"],
+    [10, 11, 0, 13, 0, "AUDIO"],
+    [11, 11, 1, 14, 0, "*"]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "1. Reference (ffmpeg WAV + exact transcript)",
+      "bounding": [-700, 20, 660, 300],
+      "color": "#3f789e",
+      "font_size": 18,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "2. DEFAULT — Qwen3-TTS 1.7B Base clone (MPS via auto, float32)",
+      "bounding": [-700, 300, 1260, 660],
+      "color": "#8A8",
+      "font_size": 18,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "3. A/B — F5-TTS v1 Base (muted; unmute TTS Text to compare)",
+      "bounding": [-700, 940, 1580, 520],
+      "color": "#a88",
+      "font_size": 18,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": { "scale": 0.85, "offset": [1400, 80] },
+    "frontendVersion": "1.25.11"
+  },
+  "version": 0.4
+}

@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.scene-factory/v4/schemas/identity.schema.json",
+  "title": "Scene Factory v4 Multimodal Identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_mode", "identity", "source_root", "exclusion_policy", "identity_matching", "modalities", "characteristics", "fusion_policy", "selection_policy"],
+  "properties": {
+    "schema_version": {"const": 4},
+    "run_mode": {"enum": ["automatic", "fine_tuning"]},
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "display_name", "subject_type", "consent"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$"},
+        "display_name": {"type": "string", "minLength": 1},
+        "subject_type": {"const": "person"},
+        "trigger_token": {"type": "string", "minLength": 1},
+        "consent": {
+          "type": "object",
+          "required": ["status", "required_in_fine_tuning"],
+          "properties": {
+            "status": {"enum": ["unverified", "verified", "revoked"]},
+            "required_in_fine_tuning": {"const": true},
+            "notes": {"type": "string"}
+          }
+        }
+      }
+    },
+    "source_root": {"type": "string", "minLength": 1},
+    "voice_root": {"type": "string", "minLength": 1},
+    "exclusion_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_insensitive_terms"],
+      "properties": {
+        "case_insensitive_terms": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "globs": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "identity_matching": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anchors", "maximum_anchor_distance", "minimum_face_area_fraction", "minimum_multi_face_identity_margin"],
+      "properties": {
+        "anchors": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 1}},
+        "maximum_anchor_distance": {"type": "number", "exclusiveMinimum": 0},
+        "minimum_face_area_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimum_multi_face_identity_margin": {"type": "number", "minimum": 0}
+      }
+    },
+    "modalities": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["kind", "globs", "required_in_fine_tuning", "training_policy"],
+        "properties": {
+          "kind": {"enum": ["image", "video", "webarchive", "audio", "transcript", "geometry", "document"]},
+          "globs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "required_in_fine_tuning": {"type": "boolean"},
+          "training_policy": {"enum": ["direct_after_review", "derive_then_review", "conditioning_only", "performance_reference", "metadata_only"]},
+          "roles": {"type": "array", "items": {"type": "string"}},
+          "video_usage_roles": {"type": "array", "minItems": 1, "items": {"enum": ["visual_identity", "motion_reference", "voice_performance", "both", "exclude"]}},
+          "video_role_rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["glob", "roles"],
+              "properties": {
+                "glob": {"type": "string", "minLength": 1},
+                "roles": {"type": "array", "minItems": 1, "items": {"enum": ["visual_identity", "motion_reference", "voice_performance", "both", "exclude"]}}
+              }
+            }
+          },
+          "video_source_overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["path", "roles"],
+              "properties": {
+                "path": {"type": "string", "minLength": 1},
+                "roles": {"type": "array", "minItems": 1, "items": {"enum": ["visual_identity", "motion_reference", "voice_performance", "both", "exclude"]}}
+              }
+            }
+          },
+          "role_rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["glob", "roles"],
+              "properties": {
+                "glob": {"type": "string", "minLength": 1},
+                "roles": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+              }
+            }
+          }
+        }
+      }
+    },
+    "characteristics": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["stable", "authority"],
+        "properties": {
+          "stable": {"type": "boolean"},
+          "authority": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "fusion_policy": {
+      "type": "object",
+      "required": ["conflict_resolution", "cross_modal_alignment", "webarchive_review", "generated_audio_scope"],
+      "properties": {
+        "conflict_resolution": {"const": "higher_authority_then_mode_policy"},
+        "cross_modal_alignment": {"const": "preserve_separate_conditioning_channels"},
+        "webarchive_review": {"const": "fine_tuning_only"},
+        "generated_audio_scope": {"const": "voice_and_performance_only"}
+      }
+    },
+    "selection_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum_width", "minimum_height", "minimum_contrast", "minimum_sharpness", "brightness_range", "near_duplicate_hamming_distance", "validation_fraction", "calibration_fraction", "final_test_fraction", "maximum_visual_training_images", "video_frames_per_source", "audio_minimum_duration_seconds", "audio_maximum_clipping_fraction", "audio_maximum_silence_fraction"],
+      "properties": {
+        "minimum_width": {"type": "integer", "minimum": 1},
+        "minimum_height": {"type": "integer", "minimum": 1},
+        "minimum_contrast": {"type": "number", "minimum": 0},
+        "minimum_sharpness": {"type": "number", "minimum": 0},
+        "brightness_range": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": 0, "maximum": 255}},
+        "near_duplicate_hamming_distance": {"type": "integer", "minimum": 0, "maximum": 64},
+        "validation_fraction": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 0.5},
+        "calibration_fraction": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 0.5},
+        "final_test_fraction": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 0.5},
+        "maximum_visual_training_images": {"type": "integer", "minimum": 8},
+        "video_frames_per_source": {"type": "integer", "minimum": 1, "maximum": 24},
+        "audio_minimum_duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "audio_maximum_clipping_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+        "audio_maximum_silence_fraction": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "motion_processing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tracking_fps", "maximum_frames_per_source", "minimum_joint_confidence", "maximum_track_centroid_distance"],
+      "properties": {
+        "tracking_fps": {"type": "number", "exclusiveMinimum": 0, "maximum": 60},
+        "maximum_frames_per_source": {"type": "integer", "minimum": 1},
+        "minimum_joint_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximum_track_centroid_distance": {"type": "number", "exclusiveMinimum": 0, "maximum": 2}
+      }
+    },
+    "ignore_globs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

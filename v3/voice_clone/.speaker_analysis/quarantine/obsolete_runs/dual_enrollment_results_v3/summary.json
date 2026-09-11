@@ -1,0 +1,20 @@
+{
+  "cross_reference_similarity": 0.23089,
+  "gage_ryan_reference_similarity": -0.03539,
+  "gage_cluster": 0,
+  "cluster_similarity_to_gage": [
+    0.1174,
+    0.10772
+  ],
+  "counts": {
+    "gage_high_confidence": 0,
+    "ryan_high_confidence": 1,
+    "bad_data": 284
+  },
+  "durations_seconds": {
+    "gage_high_confidence": 0,
+    "ryan_high_confidence": 1.62,
+    "bad_data": 614.61
+  },
+  "warning": "Machine labels are candidates only; approve by listening before training."
+}

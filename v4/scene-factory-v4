@@ -1,0 +1,2 @@
+#!/bin/sh
+exec python3 "$(dirname "$0")/scene_factory_v4.py" "$@"
