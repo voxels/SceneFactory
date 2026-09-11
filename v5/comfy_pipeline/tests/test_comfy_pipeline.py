@@ -7,12 +7,14 @@ from pathlib import Path
 
 from comfy_pipeline import graphs, manifests, identity_gate, redirection, edl
 
+ROOT = Path(__file__).resolve().parents[2]
+
 WORKFLOWS_DIR = Path(
-    os.environ.get(
-        "CEZAR_WORKFLOWS_DIR", "/home/hatch/workspace/your_files/cezar-comfy-workflows"
-    )
+    os.environ.get("CEZAR_WORKFLOWS_DIR", ROOT / "fixtures" / "workflows")
 )
-FACE_ID_V3 = Path("/home/hatch/workspace/video_project/teaser_kit/face_id/v3")
+FACE_ID_V3 = Path(
+    os.environ.get("CEZAR_FACE_ID_V3", ROOT / "fixtures" / "face_id")
+)
 
 
 def _load(name):

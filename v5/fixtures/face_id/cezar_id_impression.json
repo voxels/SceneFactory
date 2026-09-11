@@ -1,0 +1,51 @@
+{
+ "method": "trimmed mean of SFace embeddings of user-confirmed Cezar faces",
+ "n_inliers": 18,
+ "n_outliers": 2,
+ "inliers": [
+  "chips_review/IMG_1864.JPEG_f0.jpg",
+  "chips_review/IMG_1866.JPEG_f0.jpg",
+  "chips_review/IMG_1867.JPEG_f0.jpg",
+  "chips_review/IMG_1868.JPEG_f0.jpg",
+  "chips_review/IMG_1869.JPEG_f0.jpg",
+  "chips_review/IMG_1870.JPEG_f0.jpg",
+  "chips_review/IMG_1871.JPEG_f0.jpg",
+  "chips_review/IMG_1872.JPEG_f0.jpg",
+  "chips_review/IMG_1873.JPEG_f0.jpg",
+  "chips_review/IMG_1873.JPEG_f1.jpg",
+  "chips_review/IMG_1874.JPEG_f0.jpg",
+  "chips_review/IMG_1875.JPEG_f0.jpg",
+  "chips_review/IMG_1876.JPEG_f0.jpg",
+  "chips_review/IMG_1876.JPEG_f1.jpg",
+  "chips_review/IMG_1902.JPEG_f0.jpg",
+  "chips_review/IMG_1908.JPEG_f0.jpg",
+  "chips_review/IMG_1909.JPEG_f0.jpg",
+  "chips_review/IMG_1914.JPEG_f0.jpg"
+ ],
+ "outliers": [
+  "chips_cezar/IMG_1848.JPEG_f0.jpg",
+  "chips_review/IMG_1916.JPEG_f0.jpg"
+ ],
+ "dist_to_centroid": {
+  "chips_review/IMG_1868.JPEG_f0.jpg": 0.146,
+  "chips_review/IMG_1870.JPEG_f0.jpg": 0.159,
+  "chips_review/IMG_1869.JPEG_f0.jpg": 0.171,
+  "chips_review/IMG_1872.JPEG_f0.jpg": 0.174,
+  "chips_review/IMG_1867.JPEG_f0.jpg": 0.191,
+  "chips_review/IMG_1873.JPEG_f1.jpg": 0.233,
+  "chips_review/IMG_1864.JPEG_f0.jpg": 0.264,
+  "chips_review/IMG_1874.JPEG_f0.jpg": 0.304,
+  "chips_review/IMG_1866.JPEG_f0.jpg": 0.314,
+  "chips_review/IMG_1875.JPEG_f0.jpg": 0.357,
+  "chips_review/IMG_1871.JPEG_f0.jpg": 0.367,
+  "chips_review/IMG_1902.JPEG_f0.jpg": 0.371,
+  "chips_review/IMG_1908.JPEG_f0.jpg": 0.379,
+  "chips_review/IMG_1876.JPEG_f1.jpg": 0.418,
+  "chips_review/IMG_1873.JPEG_f0.jpg": 0.421,
+  "chips_review/IMG_1909.JPEG_f0.jpg": 0.433,
+  "chips_review/IMG_1876.JPEG_f0.jpg": 0.437,
+  "chips_review/IMG_1914.JPEG_f0.jpg": 0.488,
+  "chips_review/IMG_1916.JPEG_f0.jpg": 0.712,
+  "chips_cezar/IMG_1848.JPEG_f0.jpg": 0.774
+ }
+}
