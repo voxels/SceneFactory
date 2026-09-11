@@ -1,0 +1,79 @@
+{
+  "2": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "voice_clone/reference_tiktok.wav"
+    }
+  },
+  "3": {
+    "class_type": "CharacterVoicesNode",
+    "inputs": {
+      "voice_name": "none",
+      "reference_text": "We’re comfy, we’re cozy, and I’m ready to eat and fall asleep.",
+      "trim_start": 0.0,
+      "trim_end": 0.0,
+      "customized": false,
+      "opt_audio_input": [
+        "2",
+        0
+      ]
+    }
+  },
+  "4": {
+    "class_type": "Qwen3TTSEngineNode",
+    "inputs": {
+      "model_variant": "TTS - Base 1.7B (Voice Clone)",
+      "device": "auto",
+      "voice_preset": "None (Zero-shot / Custom)",
+      "language": "English",
+      "instruct": "",
+      "top_k": 50,
+      "top_p": 1.0,
+      "temperature": 0.75,
+      "repetition_penalty": 1.05,
+      "max_new_tokens": 2048,
+      "dtype": "float32",
+      "attn_implementation": "sdpa",
+      "x_vector_only_mode": false,
+      "use_torch_compile": false,
+      "use_cuda_graphs": false,
+      "compile_mode": "default",
+      "asr_use_forced_aligner": false,
+      "asr_translate_target_language": "English",
+      "asr_translate_instruction_override": "Translate the speech from {source_language} into {target_language} text. Return only the translated text.",
+      "runtime_mode": "⚠️ Shared Runtime"
+    }
+  },
+  "5": {
+    "class_type": "UnifiedTTSTextNode",
+    "inputs": {
+      "TTS_engine": [
+        "4",
+        0
+      ],
+      "text": "Absolutely. High-volume e-com is really an exercise in resource allocation. You're routinely pacing 30 to 40 looks a day, so it's all about maintaining equilibrium over a ten-hour block. You can't redline your energy in the morning and crash after lunch. I lock into a steady flow state early on, managing my stamina so that the physical output and precision on the final frame perfectly match the very first.\n[pause:1.2]\nMy book is fairly diversified between commercial print and high-output athletic lifestyle. On the commercial side, it's about delivering a polished, high-value aesthetic that drives aspiration. For the athletic work, I rely on a lifetime of organic, outdoor conditioning. It's not just about hitting static poses; I'm generating genuine kinetic force and structural alignment. That translates to a higher-yield image for the client because the movement feels grounded and structurally authentic.\n[pause:1.2]\nIt comes down to understanding the market utility of the image. For commercial catalogs, you're selling approachability. The energy needs to be fluid and warm—creating an inviting space that lowers the barrier to entry for the consumer. Editorial operates on scarcity. You pull the energy inward. It becomes a rigid, highly structured presence where you hold the frame by giving less away, essentially forcing the viewer to come to you.\n[pause:1.2]\nMy background is deeply rooted in traditional, discipline-based body control. It taught me an acute spatial awareness—knowing exactly how to balance my center of gravity regardless of the environment. On set, that translates directly to efficiency. I find my light and hit my marks organically, without second-guessing. I know the hourly overhead of a major studio production, so my priority is protecting those margins by ensuring I'm never the bottleneck.\n[pause:1.2]\nShooting summer looks in freezing conditions is just a known variable in this market. When the external environment is chaotic, I focus entirely on internal regulation. I rely on deep, intentional breathwork to drop my heart rate, lock my core, and completely neutralize the physical shiver reflex. The elements around me might be completely out of balance, but my job is to absorb that friction so it never registers on the monitor.\n[pause:1.2]\nI view my role strictly as an asset to be utilized. My personal aesthetic is a sunk cost the moment I walk on set. The sole objective is executing the creative director's macro-vision. You don't fight the current; you move with it. I listen to the styling and glam teams, find the frequency they're operating on, and adapt my physical performance to optimize their work. It's a collective output, and keeping my ego out of the equation just makes the whole system run smoother.\n",
+      "narrator_voice": "none",
+      "seed": 43,
+      "opt_narrator": [
+        "3",
+        0
+      ],
+      "enable_chunking": true,
+      "max_chars_per_chunk": 400,
+      "chunk_combination_method": "crossfade",
+      "silence_between_chunks_ms": 100,
+      "enable_audio_cache": false,
+      "batch_size": 0
+    }
+  },
+  "7": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "5",
+        0
+      ],
+      "filename_prefix": "voice_clone/gage_full_tts_tiktok_approved_s43"
+    }
+  }
+}

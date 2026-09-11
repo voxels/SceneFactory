@@ -3,8 +3,12 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
+import mimetypes
+import urllib.error
+import urllib.request
 from collections import defaultdict, deque
 from datetime import datetime, timezone
 from pathlib import Path
@@ -180,6 +184,59 @@ def make_huggingface_inference(captioner: Mapping[str, Any]) -> Callable[[Path, 
             clean_up_tokenization_spaces=False,
         )[0]
         return _unwrap_json(content)
+    return infer
+
+
+def make_openai_compatible_inference(captioner: Mapping[str, Any]) -> Callable[[Path, str, dict], dict]:
+    """Call a local OpenAI-compatible VLM endpoint, including structured image evidence."""
+    base_url = str(captioner.get("base_url", "http://127.0.0.1:8080/v1")).rstrip("/")
+    model = captioner.get("model_path") or captioner.get("model")
+    if not model:
+        raise ValueError("OpenAI-compatible vision inference needs models.captioner.model or model_path")
+    timeout = int(captioner.get("timeout_seconds", 7200))
+    max_tokens = int(captioner.get("retry_max_new_tokens", 2048))
+
+    def infer(image_path: Path, prompt: str, schema: dict) -> dict:
+        mime_type = mimetypes.guess_type(image_path.name)[0] or "image/jpeg"
+        image_data = base64.b64encode(image_path.read_bytes()).decode("ascii")
+        payload = {
+            "model": str(model),
+            "messages": [{
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64,{image_data}"}},
+                    {"type": "text", "text": prompt},
+                ],
+            }],
+            "temperature": 0,
+            "max_tokens": max_tokens,
+            "enable_thinking": False,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {"name": "reference_contract", "strict": True, "schema": schema},
+            },
+        }
+        request = urllib.request.Request(
+            f"{base_url}/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                result = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as error:
+            detail = error.read().decode("utf-8", errors="replace")
+            raise ValueError(f"local vision server returned HTTP {error.code}: {detail}") from None
+        except urllib.error.URLError as error:
+            raise ValueError(f"local vision server is unavailable at {base_url}: {error.reason}") from None
+        try:
+            content = result["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError):
+            raise ValueError(f"local vision server returned an invalid response: {result}") from None
+        if isinstance(content, dict):
+            return content
+        return _unwrap_json(str(content))
+
     return infer
 
 

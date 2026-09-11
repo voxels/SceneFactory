@@ -59,6 +59,16 @@
           "concept_id": {"type": ["string", "null"]},
           "source_folder": {"type": "string"},
           "attribute_tags": {"type": "array", "items": {"type": "string"}},
+          "pulid_reference": {
+            "type": "object",
+            "required": ["source", "decision", "approved_by", "issues"],
+            "properties": {
+              "source": {"type": "string"},
+              "decision": {"enum": ["pending", "approved", "rejected"]},
+              "approved_by": {"type": ["string", "null"]},
+              "issues": {"type": "array", "items": {"type": "string"}
+            }
+          },
           "visual_rules": {
             "type": "object",
             "properties": {

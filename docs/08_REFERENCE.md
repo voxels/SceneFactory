@@ -21,7 +21,9 @@ This page is the command, file, schema, term, and citation index for Scene Facto
 | `caption-import` | Import structured captions from another system | [Source](../pipeline.py) |
 | `caption-review` | Approve or reject a caption and assign its split | [Source](../pipeline.py) |
 | `dataset-build` | Build reviewed concept dataset manifests | [Source](../pipeline.py) |
-| `pipeline-status` | Show the status and blockers for every production stage | [Source](../pipeline.py) |
+| `pipeline-status` | Read-only intake plus generation rollup; does not rewrite `pipeline_state.json` | [Source](../pipeline.py) |
+| `execution-status` | Read-only generation view from graphs, runner records, files, approvals, and optional live queue data | [Execution status](19_EXECUTION_STATUS.md), [Source](../execution_status.py) |
+| `lora-validation-build` | Compile fixed prompt × weight × seed validation grids and a user-only promotion record | [LoRA system](04_LORA_SYSTEM.md), [Source](../lora_validation.py) |
 
 General form:
 

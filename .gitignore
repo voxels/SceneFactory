@@ -224,3 +224,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+*.wav
+/voice_clone/.speaker_analysis
+*.aiff

@@ -34,6 +34,10 @@ Scene Factory is a local production compiler for consistent character, environme
 16. [Burn-down closure](16_BURNDOWN_CLOSURE_2026-08-26.md) — current evidence and unresolved production gates.
 17. [Feature-episode production handbook](17_FEATURE_EPISODE_PRODUCTION_HANDBOOK.md) — canonical long-term series workflow, manual ComfyUI operation, asset swaps, examples, and templates.
 18. [Next run playbook](18_NEXT_RUN_PLAYBOOK.md) — generalized script and character intake, canonical-seed identity filtering, UI ownership, gates, and restart commands.
+19. [Execution status](19_EXECUTION_STATUS.md) — implemented read-only rollup of Comfy job logs, on-disk outputs, and user approvals.
+20. [Completion plan](20_COMPLETION_PLAN.md) — remaining path from execution status to one approved PuLID keyframe, LTX clips, and final assembly.
+21. [Voice local-agent handoff](21_VOICE_LOCAL_AGENT_HANDOFF.md) — exact local prerequisites, commands, safety gates, and resume procedure for Qwen3 voice cloning.
+22. [Koleka AD2184 local-agent handoff](22_KOLEKA_AD2184_LOCAL_AGENT_HANDOFF.md) — exact compile, PuLID execution, approval, retry, and sequence-resume procedure.
 
 ## Main data path
 
@@ -83,3 +87,5 @@ ComfyUI API graphs and execution
 - I want to resume from the latest verified state: [Session handoff](13_SESSION_HANDOFF_2026-08-25.md).
 - I want to produce feature-length episodes and manually edit the workflows: [Feature-episode production handbook](17_FEATURE_EPISODE_PRODUCTION_HANDBOOK.md).
 - I want to prepare the next script and character set: [Next run playbook](18_NEXT_RUN_PLAYBOOK.md).
+- I want to run voice cloning locally: [Voice local-agent handoff](21_VOICE_LOCAL_AGENT_HANDOFF.md).
+- I want to run the Koleka AD2184 generation locally: [Koleka AD2184 local-agent handoff](22_KOLEKA_AD2184_LOCAL_AGENT_HANDOFF.md).

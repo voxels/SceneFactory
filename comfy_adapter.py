@@ -7,12 +7,16 @@ import shutil
 from pathlib import Path
 
 import scene_factory as core
+import execution_adapter
+import prompt_plan
 
 
 FLUX_MODEL = "flux-2-klein-4b.safetensors"
 FLUX_TEXT_ENCODER = "qwen_3_4b.safetensors"
 FLUX_VAE = "flux2-vae.safetensors"
 K0L3K4_LORA = "Ad2184/k0l3k4_flux2_klein/pytorch_lora_weights.safetensors"
+PULID_MODEL = "pulid_flux2_klein_v2.safetensors"
+PULID_STRENGTH = 1.4
 LTX_TEXT_ENCODER = "gemma4-12b-with-proj-ltx-2.5-comfy-int8-convrot.safetensors"
 OUTPUT_NAMESPACE = "Ad2184_v3"
 INPUT_NAMESPACE = "scene_factory_v3_generated"
@@ -103,6 +107,37 @@ def text_image_graph(prompt, negative, output_prefix, seed, width=768, height=43
         }
         graph["8"]["inputs"]["model"] = ["14", 0]
     return graph
+
+
+def pulid_image_graph(
+    prompt, negative, output_prefix, seed, reference_image,
+    width=768, height=432, strength=PULID_STRENGTH,
+):
+    """Build the upstream ComfyUI-PuLID-Flux2 API graph for FLUX.2 Klein."""
+    return {
+        "1": {"class_type": "UNETLoader", "inputs": {"unet_name": FLUX_MODEL, "weight_dtype": "default"}},
+        "2": {"class_type": "CLIPLoader", "inputs": {"clip_name": FLUX_TEXT_ENCODER, "type": "flux2", "device": "default"}},
+        "3": {"class_type": "VAELoader", "inputs": {"vae_name": FLUX_VAE}},
+        "4": {"class_type": "LoadImage", "inputs": {"image": reference_image}},
+        "5": {"class_type": "PuLIDModelLoader", "inputs": {"pulid_file": PULID_MODEL}},
+        "6": {"class_type": "PuLIDEVACLIPLoader", "inputs": {}},
+        "7": {"class_type": "PuLIDInsightFaceLoader", "inputs": {"provider": "CPU"}},
+        "8": {"class_type": "ApplyPuLIDFlux2", "inputs": {
+            "model": ["1", 0], "pulid_model": ["5", 0], "strength": strength,
+            "eva_clip": ["6", 0], "face_analysis": ["7", 0], "image": ["4", 0],
+            "face_index": 0, "debug_mode": False,
+        }},
+        "9": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["2", 0], "text": prompt}},
+        "10": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["2", 0], "text": negative}},
+        "11": {"class_type": "EmptyFlux2LatentImage", "inputs": {"width": width, "height": height, "batch_size": 1}},
+        "12": {"class_type": "RandomNoise", "inputs": {"noise_seed": seed}},
+        "13": {"class_type": "CFGGuider", "inputs": {"model": ["8", 0], "positive": ["9", 0], "negative": ["10", 0], "cfg": 1.0}},
+        "14": {"class_type": "KSamplerSelect", "inputs": {"sampler_name": "euler"}},
+        "15": {"class_type": "Flux2Scheduler", "inputs": {"steps": 4, "width": width, "height": height}},
+        "16": {"class_type": "SamplerCustomAdvanced", "inputs": {"noise": ["12", 0], "guider": ["13", 0], "sampler": ["14", 0], "sigmas": ["15", 0], "latent_image": ["11", 0]}},
+        "17": {"class_type": "VAEDecode", "inputs": {"samples": ["16", 0], "vae": ["3", 0]}},
+        "18": {"class_type": "SaveImage", "inputs": {"images": ["17", 0], "filename_prefix": output_prefix}},
+    }
 
 
 def character_prompt(task):
@@ -364,7 +399,7 @@ def native_ltx_api_graph(task, duration_seconds, candidate, output_prefix):
         "unstable geometry, flicker, text, watermark"
     )
     return {
-        "1": {"class_type": "UNETLoader", "inputs": {"unet_name": LTX_MODELS["diffusion_model"], "weight_dtype": "default"}},
+        "1": {"class_type": "UNETLoader", "inputs": {"unet_name": LTX_MODELS["diffusion_model"], "weight_dtype": "fp8_e4m3fn"}},
         "2": {"class_type": "CLIPLoader", "inputs": {"clip_name": LTX_TEXT_ENCODER, "type": "ltxv", "device": "default"}},
         "3": {"class_type": "VAELoader", "inputs": {"vae_name": LTX_MODELS["video_vae"]}},
         "5": {"class_type": "LoadImage", "inputs": {"image": staged_keyframe}},
@@ -375,9 +410,9 @@ def native_ltx_api_graph(task, duration_seconds, candidate, output_prefix):
         "10": {"class_type": "EmptyLTXVLatentVideo", "inputs": {"width": 544, "height": 960, "length": frames, "batch_size": 1}},
         "11": {"class_type": "LTXVImgToVideoInplace", "inputs": {"vae": ["3", 0], "image": ["6", 0], "latent": ["10", 0], "strength": 0.7, "bypass": False}},
         "14": {"class_type": "RandomNoise", "inputs": {"noise_seed": 32184 + candidate["number"]}},
-        "15": {"class_type": "CFGGuider", "inputs": {"model": ["1", 0], "positive": ["9", 0], "negative": ["9", 1], "cfg": 1.0}},
+        "15": {"class_type": "CFGGuider", "inputs": {"model": ["1", 0], "positive": ["9", 0], "negative": ["9", 1], "cfg": 3.25}},
         "16": {"class_type": "KSamplerSelect", "inputs": {"sampler_name": "euler_ancestral"}},
-        "17": {"class_type": "ManualSigmas", "inputs": {"sigmas": "1.0, 0.99375, 0.9875, 0.98125, 0.975, 0.909375, 0.725, 0.421875, 0.0"}},
+        "17": {"class_type": "LTXVScheduler", "inputs": {"steps": 24, "max_shift": 2.05, "base_shift": 0.95, "stretch": True, "terminal": 0.1, "latent": ["11", 0]}},
         "18": {"class_type": "SamplerCustomAdvanced", "inputs": {"noise": ["14", 0], "guider": ["15", 0], "sampler": ["16", 0], "sigmas": ["17", 0], "latent_image": ["11", 0]}},
         "20": {"class_type": "VAEDecodeTiled", "inputs": {"samples": ["18", 0], "vae": ["3", 0], "tile_size": 512, "overlap": 64, "temporal_size": 128, "temporal_overlap": 32}},
         "22": {"class_type": "CreateVideo", "inputs": {"images": ["20", 0], "fps": 24.0, "bit_depth": 8}},
@@ -394,6 +429,23 @@ def user_approved_without_issues(item):
     )
 
 
+def approved_pulid_reference(project_root, project):
+    character = next(
+        (item for item in project.get("characters", []) if item.get("id") == "k0l3k4"),
+        None,
+    )
+    reference = (character or {}).get("pulid_reference") or {}
+    if not user_approved_without_issues(reference):
+        raise ValueError("K requires an issue-free, user-approved characters[].pulid_reference")
+    source = Path(reference.get("source", "")).expanduser()
+    source = source.resolve() if source.is_absolute() else (project_root / source).resolve()
+    if not source.is_file():
+        raise ValueError(f"Approved PuLID reference does not exist: {source}")
+    suffix = source.suffix.lower() if source.suffix else ".png"
+    staged = f"scene_factory_v3_identity/k0l3k4/pulid_reference{suffix}"
+    return {"source": str(source), "staged_input": staged}
+
+
 def build_workflows(project_root, ltx_template_path):
     output_root = build_root(project_root)
     character_dir = output_root / "workflows" / "character_sheets"
@@ -406,6 +458,7 @@ def build_workflows(project_root, ltx_template_path):
     storyboards = core.read_json(project_root / "build" / "storyboard_plan.json")["tasks"]
     clips = core.read_json(project_root / "build" / "scripted_clip_plan.json")["tasks"]
     project = core.read_json(project_root / "project.json")
+    pulid_reference = approved_pulid_reference(project_root, project)
     defaults = project.get("defaults", {})
     proof_seconds = int(defaults.get("motion_proof_seconds", 3))
     extended_seconds = int(defaults.get("extended_clip_seconds", 5))
@@ -434,21 +487,27 @@ def build_workflows(project_root, ltx_template_path):
             seed = 12184 + number * 10 + candidate["number"]
             write_json(
                 path,
-                text_image_graph(
-                    prompt, NEGATIVE, prefix, seed, width=512, height=768,
-                    lora_name=K0L3K4_LORA, lora_strength=0.85
+                pulid_image_graph(
+                    prompt, NEGATIVE, prefix, seed, pulid_reference["staged_input"],
+                    width=512, height=768,
                 )
             )
             character_records.append({
                 "id": variant_id, "candidate": candidate, "seed": seed,
                 "workflow": str(path), "output_prefix": prefix,
+                "adapter": {"interface": execution_adapter.INTERFACE_ID, "version": execution_adapter.INTERFACE_VERSION},
                 "execution_phase": "identity_candidates",
                 "priority": "first_review" if candidate["number"] <= 2 else "expansion",
-                "identity_conditioning": {"type": "lora", "name": K0L3K4_LORA, "strength": 0.85}
+                "identity_conditioning": {
+                    "type": "pulid_flux2", "name": PULID_MODEL,
+                    "reference_image": pulid_reference["staged_input"], "strength": PULID_STRENGTH,
+                }
             })
     storyboard_records = []
     scoped_storyboards = {}
     for number, task in enumerate(storyboards, 1):
+        if task.get("prompt_planner_contract"):
+            prompt_plan.validate_contract(task["prompt_planner_contract"])
         task, conditioning_scope = production_scoped_task(task)
         scoped_storyboards[task["id"]] = task
         contract = task["prompt_contract"]
@@ -462,18 +521,21 @@ def build_workflows(project_root, ltx_template_path):
             )
             path = storyboard_dir / f"{variant_id}.api.json"
             seed = 22184 + number * 10 + candidate["number"]
-            write_json(
-                path,
-                text_image_graph(
+            if "k0l3k4" in contract.get("identity_tags", []):
+                graph = pulid_image_graph(
+                    storyboard_prompt(task, candidate), negative, prefix, seed,
+                    pulid_reference["staged_input"], width=544, height=960,
+                )
+            else:
+                graph = text_image_graph(
                     storyboard_prompt(task, candidate), negative, prefix, seed,
                     width=544, height=960,
-                    lora_name=K0L3K4_LORA if "k0l3k4" in contract.get("identity_tags", []) else None,
-                    lora_strength=0.85
                 )
-            )
+            write_json(path, graph)
             storyboard_records.append({
                 "id": variant_id, "candidate": candidate, "seed": seed,
                 "workflow": str(path), "output_prefix": prefix,
+                "adapter": {"interface": execution_adapter.INTERFACE_ID, "version": execution_adapter.INTERFACE_VERSION},
                 "execution_phase": "storyboard_candidates",
                 "priority": "after_identity_selection",
                 "conditioning_scope": conditioning_scope,
@@ -515,6 +577,7 @@ def build_workflows(project_root, ltx_template_path):
                 )
                 video_records.append({
                     "id": variant_id,
+                    "adapter": {"interface": execution_adapter.INTERFACE_ID, "version": execution_adapter.INTERFACE_VERSION},
                     "candidate": candidate,
                     "seed": 32184 + candidate["number"],
                     "workflow": str(api_path),
@@ -537,9 +600,13 @@ def build_workflows(project_root, ltx_template_path):
                 })
     manifest = {
         "schema_version": 1,
+        "execution_adapter": {"interface": execution_adapter.INTERFACE_ID, "version": execution_adapter.INTERFACE_VERSION},
         "project": project_root.name,
         "provisional_identity_conditioning": False,
-        "identity_conditioning": {"type": "lora", "name": K0L3K4_LORA, "strength": 0.85},
+        "identity_conditioning": {
+            "type": "pulid_flux2", "name": PULID_MODEL,
+            "reference_image": pulid_reference["staged_input"], "strength": PULID_STRENGTH,
+        },
         "review_policy": "no video workflow exists until exactly one storyboard candidate is approved with zero open issues; no extended clip exists until its motion proof is approved",
         "review_inputs": {
             "storyboard_selections": str(selection_path),
@@ -548,7 +615,16 @@ def build_workflows(project_root, ltx_template_path):
             "approved_motion_proofs_for_extension": len(approved_proofs)
         },
         "models": {
-            "flux": {"diffusion_model": FLUX_MODEL, "text_encoder": FLUX_TEXT_ENCODER, "vae": FLUX_VAE, "identity_lora": K0L3K4_LORA},
+            "flux": {"diffusion_model": FLUX_MODEL, "text_encoder": FLUX_TEXT_ENCODER, "vae": FLUX_VAE},
+            "pulid_flux2": {
+                "model": PULID_MODEL, "strength": PULID_STRENGTH,
+                "reference_image": pulid_reference["staged_input"],
+                "reference_source": pulid_reference["source"],
+                "required_nodes": [
+                    "PuLIDModelLoader", "PuLIDEVACLIPLoader",
+                    "PuLIDInsightFaceLoader", "ApplyPuLIDFlux2",
+                ],
+            },
             "ltx_2_5": {
                 **LTX_MODELS,
                 **LTX_OPTIONAL_MODELS,
@@ -568,6 +644,7 @@ def build_workflows(project_root, ltx_template_path):
         "storyboards": storyboard_records,
         "videos": video_records
     }
+    execution_adapter.validate_manifest(manifest, require_workflow_files=True)
     manifest_path = output_root / "full_visual_graph_manifest.json"
     write_json(manifest_path, manifest)
     extra_paths = output_root / "extra_model_paths.yaml"
@@ -652,6 +729,18 @@ def preflight(project_root, shared_models_root, shared_input_root, external_ltx_
             "destination": str(destination),
             "present": source.is_file() and destination.is_file(),
         })
+    pulid_config = manifest.get("models", {}).get("pulid_flux2", {})
+    pulid_source = Path(pulid_config.get("reference_source", ""))
+    pulid_input = shared_input_root / pulid_config.get("reference_image", "")
+    if pulid_source.is_file():
+        pulid_input.parent.mkdir(parents=True, exist_ok=True)
+        if not pulid_input.is_file() or pulid_input.read_bytes() != pulid_source.read_bytes():
+            shutil.copy2(pulid_source, pulid_input)
+    checks.append({
+        "kind": "pulid_reference_input", "name": pulid_config.get("reference_image"),
+        "source": str(pulid_source), "destination": str(pulid_input),
+        "present": pulid_source.is_file() and pulid_input.is_file(),
+    })
     model_folders = {
         "diffusion_model": shared_models_root / "diffusion_models",
         "text_encoder": shared_models_root / "text_encoders",
@@ -662,6 +751,11 @@ def preflight(project_root, shared_models_root, shared_input_root, external_ltx_
             checks.append({"kind": "flux_lora", "name": name, "present": (shared_models_root / "loras" / name).is_file()})
         else:
             checks.append({"kind": "flux_model", "name": name, "present": (model_folders[role] / name).is_file()})
+    pulid_name = manifest.get("models", {}).get("pulid_flux2", {}).get("model", PULID_MODEL)
+    checks.append({
+        "kind": "pulid_model", "name": pulid_name,
+        "present": (shared_models_root / "pulid" / pulid_name).is_file(),
+    })
     ltx_paths = {
         "diffusion_model": shared_models_root / "diffusion_models",
         "video_vae": shared_models_root / "vae",

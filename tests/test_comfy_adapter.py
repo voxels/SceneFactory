@@ -8,9 +8,44 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import comfy_adapter
+import prompt_plan
 
 
 class ComfyAdapterTests(unittest.TestCase):
+    def test_pulid_reference_requires_user_approval_and_existing_source(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / "face.png"
+            source.write_bytes(b"face")
+            project = {"characters": [{
+                "id": "k0l3k4",
+                "pulid_reference": {
+                    "source": "face.png", "decision": "approved",
+                    "approved_by": "user", "issues": [],
+                },
+            }]}
+            result = comfy_adapter.approved_pulid_reference(root, project)
+            self.assertEqual(Path(result["source"]), source.resolve())
+            self.assertTrue(result["staged_input"].startswith("scene_factory_v3_identity/"))
+            project["characters"][0]["pulid_reference"]["approved_by"] = "agent"
+            with self.assertRaisesRegex(ValueError, "user-approved"):
+                comfy_adapter.approved_pulid_reference(root, project)
+
+    def test_prompt_plan_contract_uses_exact_project_issue_codes(self):
+        codes = ["BINDING_HELMET_ON_K", "PROP_DUPLICATED", "FACE_OCCLUDED_OR_MERGED"]
+        contract = prompt_plan.build_contract({"required": ["keep attributes bound"], "issue_codes": codes})
+        prompt_plan.validate_contract(contract)
+        self.assertEqual(
+            contract["response_schema"]["properties"]["issue_codes"]["items"]["enum"],
+            codes,
+        )
+        with self.assertRaisesRegex(ValueError, "unknown issue codes"):
+            prompt_plan.validate_response(contract, {
+                "positive_prompt": "one subject",
+                "negative_prompt": "duplicates",
+                "issue_codes": ["INVENTED_CODE"],
+            })
+
     def test_production_scope_removes_enforcers_props_and_mask_transfer_from_k(self):
         task = {
             "prompt_contract": {
@@ -109,6 +144,19 @@ class ComfyAdapterTests(unittest.TestCase):
         self.assertNotIn("14", graph)
         self.assertEqual(graph["8"]["inputs"]["model"], ["1", 0])
 
+    def test_pulid_flux2_graph_uses_upstream_nodes_and_strength(self):
+        graph = comfy_adapter.pulid_image_graph(
+            "k0l3k4 portrait", "helmet", "test/output", 2184, "approved_face.png"
+        )
+        self.assertEqual(graph["5"]["class_type"], "PuLIDModelLoader")
+        self.assertEqual(graph["5"]["inputs"]["pulid_file"], "pulid_flux2_klein_v2.safetensors")
+        self.assertEqual(graph["6"]["class_type"], "PuLIDEVACLIPLoader")
+        self.assertEqual(graph["7"]["inputs"]["provider"], "CPU")
+        self.assertEqual(graph["8"]["class_type"], "ApplyPuLIDFlux2")
+        self.assertEqual(graph["8"]["inputs"]["strength"], 1.4)
+        self.assertEqual(graph["13"]["inputs"]["model"], ["8", 0])
+        self.assertEqual(graph["4"]["inputs"]["image"], "approved_face.png")
+
     def test_ltx_graph_uses_ltx_tuned_encoder_and_core_conditioning(self):
         task = {
             "scene_id": "scene_01",
@@ -130,6 +178,11 @@ class ComfyAdapterTests(unittest.TestCase):
         )
         self.assertIn("int8-convrot", graph["2"]["inputs"]["clip_name"])
         self.assertEqual(graph["9"]["class_type"], "LTXVConditioning")
+        self.assertEqual(graph["1"]["inputs"]["weight_dtype"], "fp8_e4m3fn")
+        self.assertEqual(graph["10"]["inputs"]["length"], 121)
+        self.assertEqual(graph["15"]["inputs"]["cfg"], 3.25)
+        self.assertEqual(graph["17"]["class_type"], "LTXVScheduler")
+        self.assertEqual(graph["17"]["inputs"]["steps"], 24)
         class_types = {node["class_type"] for node in graph.values()}
         self.assertNotIn("LTXVEmptyLatentAudio", class_types)
         self.assertNotIn("LTXVConcatAVLatent", class_types)
@@ -143,6 +196,16 @@ class ComfyAdapterTests(unittest.TestCase):
         self.assertNotEqual(
             graph["2"]["inputs"]["clip_name"], comfy_adapter.FLUX_TEXT_ENCODER
         )
+
+    def test_ltx_motion_proof_uses_mod8_plus1_frame_target(self):
+        task = {
+            "scene_id": "scene_01", "shot_id": "shot_01", "formation_id": "wide",
+            "direction": {"character_action": "walk forward"},
+        }
+        graph = comfy_adapter.native_ltx_api_graph(
+            task, 3, comfy_adapter.CANDIDATE_VARIANTS[0], "test/ltx/proof"
+        )
+        self.assertEqual(graph["10"]["inputs"]["length"], 73)
 
     def test_ltx_model_requirements_are_video_only(self):
         self.assertEqual(

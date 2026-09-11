@@ -17,6 +17,8 @@ INPUT_NAMESPACE = "scene_factory_v3_generated"
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+import execution_adapter
+
 
 PHASES = (
     "identity_first_review",
@@ -139,6 +141,10 @@ def main():
     parser.add_argument("--input-root", type=Path, default=Path("/Users/voxels/ComfyUI-Shared/input"))
     parser.add_argument("--output-root", type=Path, default=Path("/Users/voxels/ComfyUI-Shared/output"))
     parser.add_argument("--timeout", type=int, default=7200)
+    parser.add_argument(
+        "--max-attempts", type=int, default=1,
+        help="Maximum attempts after an explicit Comfy failure. Timeouts are never auto-retried.",
+    )
     parser.add_argument("--limit", type=int)
     parser.add_argument(
         "--candidate", type=int, choices=range(1, 5),
@@ -151,10 +157,13 @@ def main():
     parser.add_argument("--rough-cut-output", type=Path)
     parser.add_argument("--skip-rough-cut", action="store_true")
     arguments = parser.parse_args()
+    if arguments.max_attempts < 1:
+        parser.error("--max-attempts must be at least 1")
 
     project = arguments.project.resolve()
     manifest_path = project / "build" / "comfyui" / "full_visual_graph_manifest.json"
     manifest = read_json(manifest_path)
+    execution_adapter.validate_manifest(manifest, require_workflow_files=True)
     state_path = project / "build" / "execution" / "comfy_state.json"
     state = read_json(state_path) if state_path.exists() else {"schema_version": 1, "jobs": {}}
     items = phase_items(manifest, arguments.phase)
@@ -193,36 +202,61 @@ def main():
             print(f"[{index}/{len(items)}] valid: {item['id']}", flush=True)
             continue
 
-        client_id = str(uuid.uuid4())
-        print(f"[{index}/{len(items)}] queue: {item['id']}", flush=True)
-        response = request_json(f"{base_url}/prompt", {"prompt": graph, "client_id": client_id}, timeout=30)
-        prompt_id = response.get("prompt_id")
-        if not prompt_id:
-            raise RuntimeError(f"ComfyUI did not return a prompt ID: {response}")
-        state["jobs"][item["id"]] = {"status": "running", "prompt_id": prompt_id, "started_at": now()}
-        write_json(state_path, state)
-        try:
-            record = wait_for_job(base_url, prompt_id, arguments.timeout)
-            files = output_files(record, arguments.output_root)
-            staged_path = None
-            if item.get("execution_phase") == "storyboard_candidates":
-                staged_path = stage_storyboard(item, files, arguments.input_root)
-            state["jobs"][item["id"]] = {
-                "status": "complete",
+        attempts = list(prior.get("attempts") or [])
+        for attempt_number in range(1, arguments.max_attempts + 1):
+            client_id = str(uuid.uuid4())
+            print(
+                f"[{index}/{len(items)}] queue attempt {attempt_number}/{arguments.max_attempts}: {item['id']}",
+                flush=True,
+            )
+            response = request_json(
+                f"{base_url}/prompt", {"prompt": graph, "client_id": client_id}, timeout=30
+            )
+            prompt_id = response.get("prompt_id")
+            if not prompt_id:
+                raise RuntimeError(f"ComfyUI did not return a prompt ID: {response}")
+            attempt = {
+                "attempt": len(attempts) + 1,
+                "status": "running",
                 "prompt_id": prompt_id,
-                "completed_at": now(),
-                "outputs": [str(path) for path in files],
-                "staged_keyframe": str(staged_path) if staged_path else None,
+                "client_id": client_id,
+                "started_at": now(),
             }
-            completed += 1
-            print(f"[{index}/{len(items)}] complete: {item['id']}", flush=True)
-        except Exception as error:
+            attempts.append(attempt)
             state["jobs"][item["id"]] = {
-                "status": "failed", "prompt_id": prompt_id, "failed_at": now(), "error": str(error)
+                "status": "running", "prompt_id": prompt_id,
+                "started_at": attempt["started_at"], "attempts": attempts,
             }
             write_json(state_path, state)
-            raise
-        write_json(state_path, state)
+            try:
+                record = wait_for_job(base_url, prompt_id, arguments.timeout)
+                files = output_files(record, arguments.output_root)
+                staged_path = None
+                if item.get("execution_phase") == "storyboard_candidates":
+                    staged_path = stage_storyboard(item, files, arguments.input_root)
+                attempt.update({"status": "complete", "completed_at": now()})
+                state["jobs"][item["id"]] = {
+                    "status": "complete",
+                    "prompt_id": prompt_id,
+                    "completed_at": attempt["completed_at"],
+                    "outputs": [str(path) for path in files],
+                    "staged_keyframe": str(staged_path) if staged_path else None,
+                    "attempts": attempts,
+                }
+                completed += 1
+                print(f"[{index}/{len(items)}] complete: {item['id']}", flush=True)
+                write_json(state_path, state)
+                break
+            except Exception as error:
+                attempt.update({"status": "failed", "failed_at": now(), "error": str(error)})
+                state["jobs"][item["id"]] = {
+                    "status": "failed", "prompt_id": prompt_id,
+                    "failed_at": attempt["failed_at"], "error": str(error), "attempts": attempts,
+                }
+                write_json(state_path, state)
+                if isinstance(error, TimeoutError) or attempt_number == arguments.max_attempts:
+                    raise
+                print(f"  retrying after explicit failure: {error}", flush=True)
 
     summary = {"selected": len(items), "completed_now": completed, "skipped": skipped}
     print(json.dumps(summary, indent=2), flush=True)

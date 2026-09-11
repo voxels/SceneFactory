@@ -8,7 +8,7 @@
   "models": {
     "captioner": {
       "provider": "huggingface",
-      "model": "Qwen3.5-9B",
+      "model": "Qwen3.8-27B",
       "model_path": "${QWEN_VISION_MODEL_PATH}",
       "processor_path": "${QWEN_VISION_PROCESSOR_PATH}",
       "python": "${VISION_PYTHON}",
@@ -22,7 +22,7 @@
     "prompt_planner": "Qwen",
     "image_generator": {"name": "FLUX.2 Klein 4B distilled", "steps": 4, "guidance": 1.0},
     "identity_trainer": "FLUX.2 Klein LoRA",
-    "video_generator": {"name": "LTX 2.5", "mode": "image-to-video"}
+    "video_generator": {"name": "LTX 2.5", "mode": "image-to-video", "dit_precision": "fp8_e4m3fn", "text_encoder_precision": "Q8_0", "steps": 24, "cfg": 3.25}
   },
   "path_defaults": {
     "SOURCE_ROOT": "${PROJECT_ROOT}",
@@ -31,9 +31,15 @@
     "LTX_MODELS_ROOT": "/Users/voxels/Library/Application Support/LTXDesktop/models/ltx-2.5",
     "LTX_WORKFLOW_TEMPLATE": "/Users/voxels/ComfyUI-Installs/ComfyUI/ComfyUI/custom_nodes/ComfyUI-LTXVideo/example_workflows/2.5/LTX-2.5_T2V_I2V_Single_Stage_Distilled.json",
     "OUTPUT_ROOT": "${PROJECT_ROOT}/outputs",
-    "QWEN_VISION_MODEL_PATH": "/Users/voxels/.cache/huggingface/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "COMFYUI_BASE_URL": "http://127.0.0.1:8188",
+    "PROMPT_PLANNER_URL": "http://127.0.0.1:8080/v1",
+    "QWEN_VISION_MODEL_PATH": "/Users/voxels/.cache/huggingface/hub/models--Qwen--Qwen3.8-27B/snapshots/1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
     "QWEN_VISION_PROCESSOR_PATH": "/Users/voxels/.cache/huggingface/hub/models--Qwen--Qwen3.8-27B/snapshots/1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
     "VISION_PYTHON": "/Users/voxels/comfy/.venv/bin/python"
+  },
+  "runtime": {
+    "comfyui_flags": ["--highvram", "--disable-smart-memory"],
+    "required_custom_nodes": ["ComfyUI-PuLID-Flux2", "ComfyUI-LTXVideo", "ComfyUI-Impact-Pack"]
   },
   "defaults": {
     "formations_per_shot": 3,

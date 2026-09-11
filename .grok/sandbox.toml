@@ -1,0 +1,4 @@
+[profiles.SceneFactory]
+extends = "strict"
+restrict_network = true
+deny = ["**/.env", "**/.env.*", "**/*.pem", "**/*.key", "**/secrets/**"]

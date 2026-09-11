@@ -1,0 +1,79 @@
+{
+  "2": {
+    "class_type": "LoadAudio",
+    "inputs": {
+      "audio": "voice_clone/reference_tiktok.wav"
+    }
+  },
+  "3": {
+    "class_type": "CharacterVoicesNode",
+    "inputs": {
+      "voice_name": "none",
+      "reference_text": "We’re comfy, we’re cozy, and I’m ready to eat and fall asleep.",
+      "trim_start": 0.0,
+      "trim_end": 0.0,
+      "customized": false,
+      "opt_audio_input": [
+        "2",
+        0
+      ]
+    }
+  },
+  "4": {
+    "class_type": "Qwen3TTSEngineNode",
+    "inputs": {
+      "model_variant": "TTS - Base 1.7B (Voice Clone)",
+      "device": "auto",
+      "voice_preset": "None (Zero-shot / Custom)",
+      "language": "English",
+      "instruct": "",
+      "top_k": 50,
+      "top_p": 1.0,
+      "temperature": 0.75,
+      "repetition_penalty": 1.05,
+      "max_new_tokens": 2048,
+      "dtype": "float32",
+      "attn_implementation": "sdpa",
+      "x_vector_only_mode": false,
+      "use_torch_compile": false,
+      "use_cuda_graphs": false,
+      "compile_mode": "default",
+      "asr_use_forced_aligner": false,
+      "asr_translate_target_language": "English",
+      "asr_translate_instruction_override": "Translate the speech from {source_language} into {target_language} text. Return only the translated text.",
+      "runtime_mode": "⚠️ Shared Runtime"
+    }
+  },
+  "5": {
+    "class_type": "UnifiedTTSTextNode",
+    "inputs": {
+      "TTS_engine": [
+        "4",
+        0
+      ],
+      "text": "Absolutely. High-volume e-com is really an exercise in resource allocation. You're routinely pacing 30 to 40 looks a day, so it's all about maintaining equilibrium over a ten-hour block. You can't redline your energy in the morning and crash after lunch. I lock into a steady flow state early on, managing my stamina so that the physical output and precision on the final frame perfectly match the very first.",
+      "narrator_voice": "none",
+      "seed": 43,
+      "opt_narrator": [
+        "3",
+        0
+      ],
+      "enable_chunking": true,
+      "max_chars_per_chunk": 400,
+      "chunk_combination_method": "crossfade",
+      "silence_between_chunks_ms": 100,
+      "enable_audio_cache": false,
+      "batch_size": 0
+    }
+  },
+  "7": {
+    "class_type": "SaveAudio",
+    "inputs": {
+      "audio": [
+        "5",
+        0
+      ],
+      "filename_prefix": "voice_clone/gage_actual_text_tiktok_accent_s43"
+    }
+  }
+}

@@ -11,6 +11,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import prompt_plan
+
 
 MEDIA_SUFFIXES = {
     ".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff",
@@ -997,6 +999,7 @@ def compile_manifest(project_root, context):
                     "id": f"keyframe__{task_id}", "scene_id": scene["id"], "shot_id": shot["id"],
                     "formation": formation, "prompt_contract": prompt_contract, "concept_conditioning": concept_conditioning, "lora_stack": lora_stack,
                     "model": project["models"]["image_generator"], "output": keyframe_path,
+                    "prompt_planner_contract": prompt_plan.build_contract(project.get("production_constraints")),
                     "ready": not conditioning_blockers,
                     "blockers": conditioning_blockers,
                     "gate": "all active concepts validated, then human key-frame review"
@@ -1183,21 +1186,26 @@ def command_reference_contract_run(arguments):
     captioner = expand_config_pointers(
         context["project"].get("models", {}).get("captioner", {}), context["path_variables"]
     )
-    if captioner.get("provider") != "huggingface":
-        raise ValueError("reference contract execution currently needs the configured local Hugging Face vision model")
+    provider = captioner.get("provider")
+    if provider not in {"huggingface", "openai_compatible"}:
+        raise ValueError("reference contract execution needs a local Hugging Face or OpenAI-compatible vision model")
     configured_python = captioner.get("python")
-    if configured_python and Path(configured_python).resolve() != Path(sys.executable).resolve():
+    if provider == "huggingface" and configured_python and Path(configured_python).resolve() != Path(sys.executable).resolve():
         if not Path(configured_python).is_file():
             raise ValueError(f"Configured vision Python does not exist: {configured_python}")
         print(f"Restarting reference contract command with: {configured_python}", flush=True)
         os.execv(configured_python, [configured_python, str(Path(__file__).resolve()), *sys.argv[1:]])
     import reference_contracts
-    infer = reference_contracts.make_huggingface_inference(captioner)
+    infer = (
+        reference_contracts.make_huggingface_inference(captioner)
+        if provider == "huggingface"
+        else reference_contracts.make_openai_compatible_inference(captioner)
+    )
     claims = reference_contracts.written_claims(context["project"], context["scenes"])
     result = reference_contracts.execute_tasks(
         project_root, infer, limit=arguments.limit, force=arguments.force, claims=claims,
         model_provenance={
-            "provider": "huggingface", "model": captioner.get("model"),
+            "provider": provider, "model": captioner.get("model"),
             "model_path": captioner.get("model_path"), "processor_path": captioner.get("processor_path"),
             "deterministic_decode": True,
         },
@@ -1439,8 +1447,24 @@ def command_character_balance(arguments):
 
 def command_pipeline_status(arguments):
     import pipeline
-    state = pipeline.refresh_state(arguments.project.resolve())
-    print(json.dumps(pipeline.state_summary(state), indent=2))
+    import execution_status
+
+    project_root = arguments.project.resolve()
+    state = pipeline.refresh_state(project_root, persist=False)
+    execution = execution_status.collect_status(project_root)
+    intake_ids = {
+        "source_ingestion", "structured_captioning", "identity_isolation",
+        "caption_review", "concept_datasets", "concept_training",
+    }
+    stages = [item for item in state["stages"] if item["id"] in intake_ids]
+    stages.extend({
+        "id": item["id"],
+        "status": item["status"],
+        "inputs": [],
+        "outputs": [],
+        "blockers": item["blockers"],
+    } for item in execution["stages"])
+    print(json.dumps(pipeline.state_summary({"stages": stages}), indent=2))
 
 
 def _comfy_paths(project_root, arguments):
@@ -1502,6 +1526,42 @@ def command_rough_cut(arguments):
         "timeline_clips": report["timeline_clips"],
         "missing_clips": len(report["missing_clips"]),
         "report": str(report_path)
+    }, indent=2))
+
+
+def command_execution_status(arguments):
+    import execution_status
+    from urllib.parse import urlparse
+
+    project_root = arguments.project.resolve()
+    project_path = project_root / "project.json"
+    project = json.loads(project_path.read_text(encoding="utf-8")) if project_path.is_file() else {}
+    path_defaults = project.get("path_defaults", {}) or {}
+    base_url = (
+        path_defaults.get("comfyui_base_url")
+        or path_defaults.get("COMFYUI_BASE_URL")
+        or "http://127.0.0.1:8188"
+    )
+    parsed = urlparse(base_url)
+    host = arguments.host or parsed.hostname or "127.0.0.1"
+    port = arguments.port or parsed.port or 8188
+    live = execution_status.fetch_live_queue(host, port) if arguments.live else None
+    status = execution_status.collect_status(project_root, live=live)
+    if arguments.live and live is None:
+        status["live"] = {"available": False, "error": "comfy queue unavailable"}
+    print(json.dumps(status, indent=2))
+
+
+def command_lora_validation_build(arguments):
+    import lora_validation
+
+    manifest, manifest_path, promotion_path = lora_validation.build(
+        arguments.project.resolve(), arguments.concept_id
+    )
+    print(json.dumps({
+        "jobs": len(manifest["jobs"]),
+        "manifest": str(manifest_path),
+        "promotion_record": str(promotion_path),
     }, indent=2))
 
 
@@ -1639,6 +1699,24 @@ def main():
     rough_cut_parser.add_argument("--allow-missing", action="store_true")
     rough_cut_parser.add_argument("--ffmpeg", default="ffmpeg")
     rough_cut_parser.set_defaults(function=command_rough_cut)
+
+    execution_status_parser = subparsers.add_parser(
+        "execution-status",
+        help="Read compiled jobs, runner records, outputs, approvals, and optionally the live Comfy queue.",
+    )
+    execution_status_parser.add_argument("project", type=Path)
+    execution_status_parser.add_argument("--live", action="store_true")
+    execution_status_parser.add_argument("--host")
+    execution_status_parser.add_argument("--port", type=int)
+    execution_status_parser.set_defaults(function=command_execution_status)
+
+    lora_validation_parser = subparsers.add_parser(
+        "lora-validation-build",
+        help="Compile fixed-seed, fixed-prompt, fixed-weight FLUX.2 LoRA validation grids.",
+    )
+    lora_validation_parser.add_argument("project", type=Path)
+    lora_validation_parser.add_argument("--concept-id", required=True)
+    lora_validation_parser.set_defaults(function=command_lora_validation_build)
 
     arguments = parser.parse_args()
     try:

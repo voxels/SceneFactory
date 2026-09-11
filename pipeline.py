@@ -250,6 +250,7 @@ def make_storyboard_plan(project_root, context, manifest):
             "shot_id": item["shot_id"],
             "formation": item["formation"],
             "prompt_contract": item["prompt_contract"],
+            "prompt_planner_contract": item.get("prompt_planner_contract"),
             "concept_conditioning": item.get("concept_conditioning", []),
             "purpose": "low-cost composition, blocking, lens, and continuity approval",
             "output": item["output"].replace("/keyframes/", "/storyboards/"),
@@ -295,6 +296,26 @@ def make_clip_and_sequence_plans(project_root, manifest):
     return clip_value, sequence_value
 
 
+def ensure_execution_review_records(project_root):
+    """Create empty, user-owned generation review ledgers without replacing reviews."""
+    review_dir = build_dir(project_root) / "review"
+    review_dir.mkdir(parents=True, exist_ok=True)
+    defaults = {
+        "storyboard_selections.json": {
+            "schema_version": 1,
+            "selections": [],
+        },
+        "motion_proof_reviews.json": {
+            "schema_version": 1,
+            "approvals": [],
+        },
+    }
+    for filename, value in defaults.items():
+        path = review_dir / filename
+        if not path.exists():
+            core.write_json(path, value)
+
+
 def prepare(project_root):
     warnings, context = checked_context(project_root)
     asset_index = core.build_asset_index(project_root, context)
@@ -304,6 +325,7 @@ def prepare(project_root):
     character_sheets = make_character_sheet_plan(project_root, context)
     storyboards = make_storyboard_plan(project_root, context, manifest)
     clips, sequences = make_clip_and_sequence_plans(project_root, manifest)
+    ensure_execution_review_records(project_root)
     state = refresh_state(project_root, context, catalog, captions, character_sheets, storyboards, clips, sequences)
     return warnings, state
 
@@ -1377,7 +1399,10 @@ def build_character_balance_report(project_root, character_id="k0l3k4"):
     return report, report_path, markdown_path
 
 
-def refresh_state(project_root, context=None, catalog=None, captions=None, character_sheets=None, storyboards=None, clips=None, sequences=None):
+def refresh_state(
+    project_root, context=None, catalog=None, captions=None, character_sheets=None,
+    storyboards=None, clips=None, sequences=None, *, persist=True
+):
     if context is None:
         _, context = checked_context(project_root)
     catalog = catalog or read_optional(build_dir(project_root) / "source_catalog.json", {"assets": []})
@@ -1418,7 +1443,8 @@ def refresh_state(project_root, context=None, catalog=None, captions=None, chara
         {"id": "final_assembly", "status": "blocked", "inputs": ["approved sequences", "audio", "graphics"], "outputs": ["final master"], "blockers": ["approved sequences", "audio and graphics", "assembly adapter", "final review"]}
     ]
     state = {"schema_version": 1, "generated_at": now(), "project_id": context["project"]["project"]["id"], "stages": stages}
-    core.write_json(build_dir(project_root) / "pipeline_state.json", state)
+    if persist:
+        core.write_json(build_dir(project_root) / "pipeline_state.json", state)
     return state
 
 
