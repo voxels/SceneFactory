@@ -1,0 +1,633 @@
+{
+ "last_node_id": 12,
+ "last_link_id": 15,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "LoadImage",
+   "pos": [
+    40,
+    600
+   ],
+   "size": [
+    315,
+    252
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      5
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "MASK",
+     "type": "MASK",
+     "links": [],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage"
+   },
+   "widgets_values": [
+    "teaser_kit/events/EVENT_STILL.jpg",
+    "image"
+   ],
+   "title": "Event held-pose reference"
+  },
+  {
+   "id": 2,
+   "type": "LTXVModelLoader",
+   "pos": [
+    400,
+    40
+   ],
+   "size": [
+    315,
+    226
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      1,
+      2
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LTXVModelLoader"
+   },
+   "widgets_values": [
+    "ltx-2.5-22b-distilled-transformer-bf16.safetensors"
+   ],
+   "title": "Load LTX-Video 2.5"
+  },
+  {
+   "id": 3,
+   "type": "LoraLoader",
+   "pos": [
+    400,
+    260
+   ],
+   "size": [
+    315,
+    278
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    },
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      6,
+      9
+     ],
+     "slot_index": 0
+    },
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      3,
+      4
+     ],
+     "slot_index": 1
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoader"
+   },
+   "widgets_values": [
+    "cezar_identity_v1.safetensors",
+    1.0,
+    1.0
+   ],
+   "title": "Cezar identity LoRA"
+  },
+  {
+   "id": 4,
+   "type": "CLIPTextEncodeLTXV",
+   "pos": [
+    740,
+    40
+   ],
+   "size": [
+    315,
+    226
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      7
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncodeLTXV"
+   },
+   "widgets_values": [
+    "Cezar, the same man in every shot: short dark curly hair, athletic build, black shorts. one fictional beach at the same sunset moment, wet sand with golden reflections, calm ocean, distant tree-covered headland. EVENT_ACTION. new camera viewpoint, cinematic medium shot, very slow subtle camera drift matching the assigned vehicle path, no fast moves, no invented motion, pose held from reference"
+   ],
+   "title": "Positive (fixed who/what)"
+  },
+  {
+   "id": 5,
+   "type": "CLIPTextEncodeLTXV",
+   "pos": [
+    740,
+    300
+   ],
+   "size": [
+    315,
+    226
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      11
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncodeLTXV"
+   },
+   "widgets_values": [
+    "extra people, second man, woman, child, text, watermark, logo, cartoon, CGI, plastic skin, invented acrobatics, motion blur, deformed hands"
+   ],
+   "title": "Negative"
+  },
+  {
+   "id": 6,
+   "type": "LTXVImgToVideoLatent",
+   "pos": [
+    1080,
+    160
+   ],
+   "size": [
+    315,
+    226
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "image",
+     "type": "IMAGE",
+     "link": 5
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      12
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LTXVImgToVideoLatent"
+   },
+   "widgets_values": [
+    97
+   ],
+   "title": "Held-pose -> latent"
+  },
+  {
+   "id": 7,
+   "type": "LTXVScheduler",
+   "pos": [
+    1420,
+    40
+   ],
+   "size": [
+    315,
+    278
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 6
+    }
+   ],
+   "outputs": [
+    {
+     "name": "SIGMAS",
+     "type": "SIGMAS",
+     "links": [
+      8
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LTXVScheduler"
+   },
+   "widgets_values": [
+    20,
+    1.0,
+    1.0
+   ],
+   "title": "LTXV scheduler"
+  },
+  {
+   "id": 8,
+   "type": "LTXVConditioning",
+   "pos": [
+    1420,
+    260
+   ],
+   "size": [
+    315,
+    226
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 7
+    },
+    {
+     "name": "sigmas",
+     "type": "SIGMAS",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "links": [
+      10
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LTXVConditioning"
+   },
+   "widgets_values": [
+    4.5
+   ],
+   "title": "LTXV guidance"
+  },
+  {
+   "id": 9,
+   "type": "KSampler",
+   "pos": [
+    1760,
+    160
+   ],
+   "size": [
+    315,
+    356
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 9
+    },
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 10
+    },
+    {
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 11
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 12
+    }
+   ],
+   "outputs": [
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      13
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler"
+   },
+   "widgets_values": [
+    21,
+    20,
+    1.0,
+    "euler",
+    "normal",
+    1.0
+   ],
+   "title": "KSampler"
+  },
+  {
+   "id": 10,
+   "type": "VAELoader",
+   "pos": [
+    2100,
+    40
+   ],
+   "size": [
+    315,
+    226
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      14
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "ltx-2.5-video-vae-bf16.safetensors"
+   ],
+   "title": "LTX VAE"
+  },
+  {
+   "id": 11,
+   "type": "VAEDecode",
+   "pos": [
+    2100,
+    260
+   ],
+   "size": [
+    315,
+    200
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 13
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 14
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      15
+     ],
+     "slot_index": 0
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "widgets_values": [],
+   "title": "VAE decode"
+  },
+  {
+   "id": 12,
+   "type": "VHS_VideoCombine",
+   "pos": [
+    2440,
+    200
+   ],
+   "size": [
+    315,
+    356
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 15
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "VHS_VideoCombine"
+   },
+   "widgets_values": [
+    24.0,
+    0,
+    "cezar_take_eventXX",
+    "image/av1.mp4",
+    false,
+    true
+   ],
+   "title": "Save take (VHS, optional)"
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   3,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   2,
+   0,
+   3,
+   1,
+   "CLIP"
+  ],
+  [
+   3,
+   3,
+   1,
+   4,
+   0,
+   "CLIP"
+  ],
+  [
+   4,
+   3,
+   1,
+   5,
+   0,
+   "CLIP"
+  ],
+  [
+   5,
+   1,
+   0,
+   6,
+   0,
+   "IMAGE"
+  ],
+  [
+   6,
+   3,
+   0,
+   7,
+   0,
+   "MODEL"
+  ],
+  [
+   7,
+   4,
+   0,
+   8,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   8,
+   7,
+   0,
+   8,
+   1,
+   "SIGMAS"
+  ],
+  [
+   9,
+   3,
+   0,
+   9,
+   0,
+   "MODEL"
+  ],
+  [
+   10,
+   8,
+   0,
+   9,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   11,
+   5,
+   0,
+   9,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   12,
+   6,
+   0,
+   9,
+   3,
+   "LATENT"
+  ],
+  [
+   13,
+   9,
+   0,
+   11,
+   0,
+   "LATENT"
+  ],
+  [
+   14,
+   10,
+   0,
+   11,
+   1,
+   "VAE"
+  ],
+  [
+   15,
+   11,
+   0,
+   12,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [],
+ "config": {},
+ "extra": {},
+ "version": 0.8
+}

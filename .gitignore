@@ -228,3 +228,4 @@ __marimo__/
 /voice_clone/.speaker_analysis
 *.aiff
 /v1_pre_fresh_run_2026-08-29/comfy_shared
+.aider*

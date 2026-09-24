@@ -1,0 +1,23 @@
+{
+  "package": "cezar-comfyui-package",
+  "built": "2026-09-11",
+  "status": "authored, NOT verified (no GPU on build machine; Mac run is the proof)",
+  "workflows": [
+    {"file": "A_identity_gate_ltx2.json", "nodes": 13, "stage": "proof run + identity gate"},
+    {"file": "B_sam3_segmentation.json", "nodes": 3, "stage": "B0 subject/environment separation"},
+    {"file": "C_poseheld_take_ltx2.json", "nodes": 12, "stage": "C per-event pose-held takes"}
+  ],
+  "node_grounding": {
+    "SceneFactorySAM3SegmentVideo/SceneFactorySAM3SaveMaskSequence": "verified against SceneFactory/comfy_nodes/scene_factory_sam3/__init__.py INPUT_TYPES",
+    "LTX nodes": "official ComfyUI-LTXVideo example family; remap on Mac if pack names differ",
+    "core nodes": "ComfyUI core (LoadImage, KSampler, VAEDecode, LoraLoader, PreviewImage, SaveImage)",
+    "VHS nodes": "VideoHelperSuite, optional"
+  },
+  "hard_rules_encoded": [
+    "no color/grading nodes anywhere in the graphs",
+    "no invented motion: held poses or skeleton takes only",
+    "identity arbiter is the user; workflow A produces gate candidates",
+    "footage is conceptual reference, never literal pixels"
+  ],
+  "generator": "teaser_kit/build_comfyui_package.py (re-runnable)"
+}
